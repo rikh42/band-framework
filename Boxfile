@@ -4,3 +4,12 @@ web1:
     - app/cache
   document_root: htdocs
   php_version: 5.3.10
+  php_extensions:
+    - mysql
+    - mbstring
+    - pdo_mysql
+    - pdo
+    - iconv
+    - json
+    - memcached
+    - mcrypt
