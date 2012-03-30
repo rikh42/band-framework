@@ -1,0 +1,44 @@
+{% extends "example::layout.twig" %}
+
+{% block header %}
+<div class="page-header">
+	<h1>Hello {{name}}</h1>
+
+	<p>Says hello to you...</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>How this page works</h2>
+
+<p>The framework matches the URL to the HelloAction of the DemoController using
+the following information in the routing table...</p>
+<pre class="prettyprint">
+hello:
+  url: /hello/::{name}
+  options: { controller: example:DemoController:hello }
+  defaults: { name: 'World' }
+</pre>
+
+<p>Once the route has been found, the framework calls the action below...</p>
+
+<pre class="prettyprint">
+public function helloAction($name)
+{
+	// Prepare some data that will be rendered in the template
+	$data = array(
+		'name' => $name
+	);
+
+	// render it
+	return $this->renderResponse('example:DemoController:hello.twig', $data);
+}
+</pre>
+
+<p>As you can see, the name has already been extracted from the URL and is
+passed into the action as an argument. We then simply render a Twig template
+that inserts the name into the page. We can insert it again here if we like<br>
+The name in the URL is: <strong>{{name}}</strong></p>
+
+<p><a href="{{ path('home') }}">Home</a></p>
+{% endblock %}

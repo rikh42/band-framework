@@ -1,0 +1,60 @@
+
+{# Draws a label of a field #}
+{% block field_label %}
+<label class="control-label" for="{{id|default(name)}}">{{label|default(name)}}</label>
+{% endblock %}
+
+{# Draws the errors on a field #}
+{% block field_errors%}
+	{% if errors %}
+		<ul>
+		{% for e in errors %}
+			<li>{{e}}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+{% endblock %}
+
+
+{# Draws the html widget of a field #}
+{% block field_widget %}
+<div class="controls">
+	<input class="input-xlarge" id="{{id}}" type="{{type|default('text')}}" name="{{full_name}}" value="{{value}}" />
+	{% if hint %}
+		<p class="help-block">{{hint}}</p>
+	{% endif %}
+</div>
+{% endblock %}
+
+
+{# Draws all the parts of a field (label, errors, widgets) #}
+{% block field_row %}
+<div class="control-group">
+	{{ form_label(form) }}
+	{{ form_errors(form) }}
+	{{ form_widget(form) }}
+</div>
+{% endblock field_row %}
+
+
+{# Draws a sub-form #}
+{% block form_row %}
+	{% if label %}
+	<fieldset><legend>{{label}}</legend>
+	{% endif %}
+	{% for child in form %}
+		{{ form_row(child) }}
+	{% endfor %}
+	{% if label %}
+	</fieldset>
+	{% endif %}
+{% endblock form_row %}
+
+
+{# Draws all the rows in a form #}
+{% block field_rows %}
+	{% for child in form %}
+		{{ form_row(child) }}
+	{% endfor %}
+{% endblock %}
+

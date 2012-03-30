@@ -1,0 +1,22 @@
+
+form:
+  type: form
+  name: myform
+  method: post
+  children:
+    contact-fieldset:
+      type: form
+      name: contact
+      label: This is the legend
+      children:
+        username:
+          type: text
+          name: username
+          label: Enter your name
+          validators:
+            Digits: ~
+            NotBlank: { message: Its Bad. }
+        password:
+          type: password
+          name: password
+          label: Your password

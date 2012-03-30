@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Example</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
+	<link href="/css/doc.css" rel="stylesheet">
+</head>
+<body onload="prettyPrint()">
+
+
+<header class="hero-unit">
+	<h1>Band Framework</h1>
+	<p>A lightweight Symfony-like framework for PHP apps.</p>
+</header>
+
+<section class="main-content">
+	<div class="container">
+		<div class="row">
+			<div class="span12">
+				{% block header %}
+				<div class="page-header">
+					<h1>Page Header</h1>
+					<p>and a sample caption</p>
+				</div>
+				{% endblock %}
+
+				<div class="row">
+					<div class="span8">
+						{% block content %}
+						<p>This is replaced with the page content.</p>
+						{% endblock %}
+					</div>
+					<div class="span4">
+						<h2>Credits</h2>
+
+						<p>The core framework is based loosely on an older framework I developed. This
+							newer version has been heavily influenced by the design of the Symfony 2 framework.
+							In fact, some parts of Symfony 2 are used directly (especially the Yaml parser
+							and the Twig template engine).</p>
+
+						<p>Many parts of the core framework, such as the dependency injection system,
+							the response and request objects are kind of similar to Symfony 2. The versions
+							in this framework tend to be simpler and cut down, with less powerful functionality.
+							The simplification has been made in the quest for performance and easy of learning.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="footer">
+	<div class="container">
+		<div class="row">
+			<div class="span12">
+				{% block footer %}
+				<p>Designed and built by Rik Heywood, with massive inspiration from Symfony 2</p>
+				<p>Code licensed under the new BSD License. See included license.txt file for details.</p>
+				{% endblock %}
+			</div>
+		</div>
+	</div>
+</section>
+
+<script src="/js/prettify.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "example::layout.twig" %}
+
+{% block header %}
+<div class="page-header">
+	<h1>Form Test</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="well">
+	<form class="form-horizontal" method="{{form.properties.method}}" action="{{path('form')}}">
+		{{ form_all(form) }}
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</form>
+</div>
+<p>
+	<a href="{{path('home')}}">Home</a>
+</p>
+{% endblock %}

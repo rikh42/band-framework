@@ -1,0 +1,31 @@
+{% extends "example::layout.twig" %}
+
+{% block header %}
+<div class="page-header">
+	<h1>Demo</h1>
+
+	<p>This is a simple demo using the Band Framework.</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<h2>Getting Started with the Framework</h2>
+<p>If you can read this, then something must be working! yay!</p>
+<p>This page has been brought to you by the the <em>DemoController</em>
+and the Twig templates found in the <em>example</em> folder.</p>
+<p>The code to render this page looks like this...</p>
+<pre class="prettyprint">
+public function indexAction()
+{
+	return $this->renderResponse('example:DemoController:index.twig');
+}
+</pre>
+<h2>Other Actions included in the Demo Controller</h2>
+<ul>
+	<li>
+		<a href="{{ path('hello') }}">Hello Action</a> - A simple Hello World Action that looks for
+		a name in the URL and says Hello to you. For example, to say hello to Rik,
+		you just need to use the URL <a href="{{ url('hello', {'name':'Rik'}) }}">/hello/Rik</a>
+	</li>
+</ul>
+{% endblock %}
