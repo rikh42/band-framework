@@ -86,7 +86,7 @@ class Kernel implements KernelInterface
 
 			// give the package a change to boot
 			if ($bootable instanceof PackageInterface)
-				$bootable->boot();
+				$bootable->boot($this);
 		}
 
 		// we're done
@@ -137,22 +137,14 @@ class Kernel implements KernelInterface
 
 		// Add some services that are part of the system
 		$this->addService('config', $config);
-
-		// Add some services that are part of the system
 		$this->addService('kernel', $this);
-
-		// Add the event dispatcher
 		$this->addService('event-dispatcher', new EventDispatcher);
-
-		// Create a logger
 		$this->addService('logger', $this->logger);
-
-		// Add the template engine service
 		$this->addService('template.engine', 'snb\view\TwigView');
-
-		// Add the database engine as a service
-		$this->addService('database', 'snb\core\Database')
-			->addCall('init', array());
+		$this->addService('database', 'snb\core\Database')->addCall('init', array());
+		$this->addService('form.builder', 'snb\form\FormBuilder')->setArguments(array('::service::kernel', '::service::logger'));
+		$this->addService('twig.extension.routing', 'snb\view\RouteExtension')->setArguments(array('::service::routes'));
+		$this->addService('twig.extension.forms', 'snb\view\FormExtension')->setArguments(array('::service::config'));
 
 		// Register some app specific services
 		$this->registerServices();
@@ -318,12 +310,11 @@ class Kernel implements KernelInterface
 					array('$name'=>$name, '$type'=>$type, '$path'=>$path));
 
 			// throw an exception
-			throw new \InvalidArgumentException(sprintf('Unable to find file "%s" => "%s".', $name, $path));
+			throw new \InvalidArgumentException(sprintf('Unable to find file "%s".', $name));
 		}
 
 		return $path;
 	}
-
 
 
 
@@ -391,7 +382,6 @@ class Kernel implements KernelInterface
 				}
 			}
 
-
 			// Find info on the controller we'll need to call
 			$controllerName = $route->getController();
 			$actionName = $route->getAction();
@@ -411,9 +401,6 @@ class Kernel implements KernelInterface
 					$response = call_user_func_array(array($controller, $actionName), $args);
 				}
 			}
-
-			// inject any logging data here...
-			//$this->logger->dump();
 
 			return $response;
 		}

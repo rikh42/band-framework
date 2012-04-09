@@ -44,6 +44,10 @@ class FormBuilder extends ContainerAware
 		// Add the core extensions
 		$this->addExtensions(array(
 			'text' => 'snb\form\type\TextType',
+			'textarea' => 'snb\form\type\TextAreaType',
+			'checkbox' => 'snb\form\type\CheckboxType',
+			'radio' => 'snb\form\type\RadioType',
+			'choice' => 'snb\form\type\ChoiceType',
 			'password' => 'snb\form\type\PasswordType',
 			'form' => 'snb\form\type\FormType',
 			'fieldset' => 'snb\form\type\FormType'	// Alias of form
@@ -85,32 +89,41 @@ class FormBuilder extends ContainerAware
 			$content = array();
 
 		// check that their is a form
-		if (!isset($content['form']))
-			$content['form'] = array();
+		foreach($content as $name=>$form)
+		{
+			// just use the first entry in the file as the form
+			return $this->loadFormElement($form, $name);
+		}
 
-		// Finally, create the form from the topmost element
-		// This will create the form and all its children
-		return $this->loadFormElement($content['form']);
+		// not reachable, unless the file is empty
+		return null;
 	}
 
 
 
 	/**
 	 * @param array $element
-	 * @return null
+	 * @return snb\form\type\FormType - or another field type
 	 */
-	public function loadFormElement(array $element)
+	public function loadFormElement(array $element, $defaultName)
 	{
 		// get the field type
 		$type = isset($element['type']) ? $element['type'] : 'text';
 
-		// If the type is unknown, fail
+		// If the type is unknown, switch to text type
 		if (!array_key_exists($type, $this->extensions))
-			return null;
+		{
+			$this->logger->warning('Found unknown field type in form definition. Treating as Text', $type);
+			$type = 'text';
+		}
 
 		// create the form element
 		$class = $this->extensions[$type];
 		$form = new $class;
+
+		// default the name to the name of the element.
+		// may be overridden with the name: property
+		$form->set('name', $defaultName);
 
 		// Set all its properties and children up
 		foreach($element as $key=>$value)
@@ -119,9 +132,9 @@ class FormBuilder extends ContainerAware
 			{
 				// if the element has children, create them as well
 				case 'children':
-					foreach($value as $child)
+					foreach($value as $name=>$child)
 					{
-						$childForm = $this->loadFormElement($child);
+						$childForm = $this->loadFormElement($child, $name);
 						$form->addChild($childForm);
 					}
 					break;

@@ -9,7 +9,7 @@
 {% block content %}
 <div class="well">
 	<form class="form-horizontal" method="{{form.properties.method}}" action="{{path('form')}}">
-		{{ form_all(form) }}
+		{{ draw_form(form) }}
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">Submit</button>
 		</div>

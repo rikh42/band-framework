@@ -10,7 +10,8 @@
 namespace snb\view;
 use snb\view\ViewInterface;
 use snb\core\ContainerAware;
-use snb\routing\RouteExtension;
+use snb\view\RouteExtension;
+
 
 /**
  * View class that lets us use Twig for templates
@@ -52,13 +53,10 @@ class TwigView extends ContainerAware implements ViewInterface
 			'auto_reload' => true
 		));
 
-		// Add my extensions.
-		$routeExtension = new RouteExtension($this->container->get('routes'));
-		$twig->addExtension($routeExtension);
-
-		// add the form extension
-		$formExtension = new FormExtension($config);
-		$twig->addExtension($formExtension);
+		// Add all the extensions that have been registed with the service provider
+		$extensions = $this->container->getMatching('twig.extension.*');
+		foreach ($extensions as $ext)
+			$twig->addExtension($ext);
 
 		// Load the template and render it.
 		$template = $twig->loadTemplate($name);

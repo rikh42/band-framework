@@ -18,6 +18,7 @@ interface ContainerInterface
 	function set($name, $object);
 	function setMany($list);
 	function get($name);
+	function getMatching($name);
 
 	function setModel($name, $ref);
 	function createModel($name);

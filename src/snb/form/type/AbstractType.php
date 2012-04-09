@@ -27,11 +27,6 @@ class AbstractType
 	 */
 	protected $properties;
 
-	/**
-	 * @var array
-	 */
-	protected $attributes;
-
 
 	/**
 	 * @var array
@@ -56,7 +51,6 @@ class AbstractType
 	public function __construct()
 	{
 		$this->properties = array();
-		$this->attributes = array();
 		$this->errors = array();
 		$this->validators = array();
 
@@ -162,55 +156,12 @@ class AbstractType
 
 		// Custom values that are generated or outside the standard properties
 		$view->set('id', $this->getId());
-		$view->set('attr', $this->attributes);
 		$view->set('type', $this->getType());
 		$view->set('full_name', $this->getFullName());
 		$view->set('errors', $this->errors);
 		return $view;
 	}
 
-
-	/***********************************
-	 * Attributes
-	 */
-
-
-	/**
-	 * Sets the value of an attribute on the field
-	 * @param string $name
-	 * @param $value
-	 */
-	public function setAttribute($name, $value)
-	{
-		$this->attributes[(string)$name] = $value;
-	}
-
-
-
-	/**
-	 * Gets the value of the named attribute
-	 * @param string $name
-	 * @param mixed $default
-	 * @return mixed
-	 */
-	public function getAttribute($name, $default = null)
-	{
-		$name = (string)$name;
-		if (array_key_exists($name, $this->attributes))
-			return $this->attributes[$name];
-
-		return $default;
-	}
-
-
-	/**
-	 * Returns all the attributes
-	 * @return array
-	 */
-	public function getAttributes()
-	{
-		return $this->attributes;
-	}
 
 
 

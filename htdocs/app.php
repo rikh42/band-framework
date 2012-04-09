@@ -13,12 +13,9 @@ require_once __DIR__.'/../app/autoload.php';
 require_once __DIR__ . '/../app/AppKernel.php';
 use snb\http\Request;
 
+// try and find the environment and default to dev
+$env = isset($_SERVER['ENV']) ? $_SERVER['ENV'] : 'dev';
+
 // Create the app kernel and handle the request
-$app = new AppKernel('dev', $start);
+$app = new AppKernel($env, $start);
 $app->handle(Request::createFromGlobals())->send();
-
-// Debug to show some timings.
-$end = microtime(true);
-$t = (int) (($end - $start) * 1000);
-echo "<br>$t";
-

@@ -156,4 +156,28 @@ class FormType extends AbstractType
 	}
 
 
+
+	/**
+	 * Determines if the form has been successfully submitted
+	 * if this returns true, you can process the form and redirect.
+	 * if it returns false, then you need to draw the form.
+	 * @param \snb\http\Request $request
+	 * @return bool
+	 */
+	public function onPostValid(Request $request)
+	{
+		// If this is a post request
+		if ($request->getMethod() == 'POST')
+		{
+			// bind the post data to the form
+			$this->bindRequest($request);
+
+			// check that the form data is valid
+			if ($this->isValid())
+				return true;
+		}
+
+		// not ready to be processed yet
+		return false;
+	}
 }

@@ -8,10 +8,10 @@
 
 
 namespace snb\core;
-
+use snb\core\KernelInterface;
 
 
 interface PackageInterface
 {
-	public function boot();
+	public function boot(KernelInterface $kernel);
 }

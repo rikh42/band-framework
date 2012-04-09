@@ -1,3 +1,11 @@
+{#
+This is not too pretty to look at. It basically defines the HTML to use
+for each bit of rendering a form, from rows and labels, to the individual field types.
+Each block defines the HTML for one small part of the problem.
+The blocks output HTML, call other blocks, or call functions in the FormExtension
+(esp. for recursive elements)
+So, this file essentially defines the markup used to render forms
+#}
 
 {# Draws a label of a field #}
 {% block field_label %}
@@ -18,23 +26,72 @@
 
 {# Draws the html widget of a field #}
 {% block field_widget %}
-<div class="controls">
-	<input class="input-xlarge" id="{{id}}" type="{{type|default('text')}}" name="{{full_name}}" value="{{value}}" />
+	<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('text')}}" name="{{full_name}}" value="{{value}}" />
 	{% if hint %}
 		<p class="help-block">{{hint}}</p>
 	{% endif %}
-</div>
 {% endblock %}
 
+{% block textarea_widget %}
+	<textarea id="{{id}}" name="{{full_name}}" class="input-xlarge {{class}}" rows="{{rows|default(3)}}">{{value}}</textarea>
+{% endblock %}
+
+{% block checkbox_widget %}
+	<label class="checkbox">
+		<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('checkbox')}}" name="{{full_name}}" {%if attributes.checked %}checked="checked"{%endif%} value="{{value}}" />
+		{{label|default(name)}}
+	</label>
+{% endblock %}
+
+{% block radio_widget %}
+	<label class="radio">
+		<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('radio')}}" name="{{full_name}}" {%if attributes.checked %}checked="checked"{%endif%} value="{{value}}" />
+		{{label|default(name)}}
+	</label>
+{% endblock %}
+
+{% block choice_widget %}
+	{% if expanded %}
+		{% for child in form %}
+			{{ form_widget(child) }}
+		{% endfor %}
+	{%else%}
+		<select id="{{id}}" name="{{full_name}}" class="{{class}}" {% if multiselect %}multiple="multiple"{%endif%}>
+			{% for optionVal, optionLabel in choices %}
+			<option value="{{optionVal}}" {%if optionVal==value%}selected="selected"{%endif%}>{{optionLabel}}</option>
+			{% endfor %}
+		</select>
+	{% endif %}
+{% endblock %}
 
 {# Draws all the parts of a field (label, errors, widgets) #}
 {% block field_row %}
 <div class="control-group">
 	{{ form_label(form) }}
+	<div class="controls">
 	{{ form_errors(form) }}
 	{{ form_widget(form) }}
+	</div>
 </div>
-{% endblock field_row %}
+{% endblock  %}
+
+{% block checkbox_row %}
+<div class="control-group">
+	<div class="controls">
+	{{ form_errors(form) }}
+	{{ form_widget(form) }}
+	</div>
+</div>
+{% endblock  %}
+
+{% block radio_row %}
+<div class="control-group">
+	<div class="controls">
+	{{ form_errors(form) }}
+	{{ form_widget(form) }}
+	</div>
+</div>
+{% endblock  %}
 
 
 {# Draws a sub-form #}

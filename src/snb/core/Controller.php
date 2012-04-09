@@ -15,6 +15,7 @@ use snb\http\Response;
 use snb\core\Database;
 use snb\http\Request;
 use snb\logger\LoggerInterface;
+use snb\form\FormBuilder;
 
 //==============================
 // Controller
@@ -142,6 +143,15 @@ class Controller extends ContainerAware
 	public function getRoutes()
 	{
 		return $this->container->get('routes');
+	}
+
+
+	/**
+	 * @return snb\form\FormBuilder
+	 */
+	public function getFormBuilder()
+	{
+		return $this->container->get('form.builder');
 	}
 
 

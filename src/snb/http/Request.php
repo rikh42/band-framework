@@ -22,22 +22,25 @@ use snb\http\SessionStorageInterface;
 class Request
 {
 	/**
-	 * @var RequestParams
+	 * @var RequestParams $get - get request params
+	 * @var RequestParams $post - posted params
+	 * @var RequestParams $server - server params
+	 * @var RequestParams $cookies - The request cookie
+	 * @var RequestHeaders $headers - request headers
+	 * @var RequestFiles $files - request files
+	 * @var SessionStorageInterface $session - the session (if there is one)
+	 * @var bool $trustProxy - do we trust proxy redirections
 	 */
-	public $get;		// get request params
-
-	/**
-	 * @var RequestParams
-	 */
-	public $post;		// posted params
-	public $server;		// server params
-	public $cookies;	// The request cookies
-	public $files; 		// The request files
-	public $headers;	// The request headers
-
-	protected $session;	// The session, if there is one
-
+	public $get;
+	public $post;
+	public $server;
+	public $cookies;
+	public $files;
+	public $headers;
+	protected $session;
 	protected $trustProxy;
+
+
 
 	//==============================
 	// __construct
@@ -308,7 +311,15 @@ class Request
 	//==============================
 	public function getPath()
 	{
-		return $this->server->get('REQUEST_URI');
+		// Chop off the get params if there are any
+		$uri = $this->server->get('REQUEST_URI');
+		$pos = strpos($uri, '?');
+		if ($pos !== false)
+		{
+			$uri = substr($uri, 0, $pos);
+		}
+
+		return $uri;
 	}
 
 

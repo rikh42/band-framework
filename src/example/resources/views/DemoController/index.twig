@@ -27,5 +27,8 @@ public function indexAction()
 		a name in the URL and says Hello to you. For example, to say hello to Rik,
 		you just need to use the URL <a href="{{ url('hello', {'name':'Rik'}) }}">/hello/Rik</a>
 	</li>
+	<li>
+		<a href="{{ path('form') }}">Form Example</a> - A simple form.
+	</li>
 </ul>
 {% endblock %}

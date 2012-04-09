@@ -12,6 +12,6 @@ interface CacheInterface
 {
 	public function get($key);
 	public function remove($key);
-	public function set($key, $value, $expire = 60);
+	public function set($key, $value, $expireSeconds = 60);
 	public function increment( $key, $amount=1);
 }

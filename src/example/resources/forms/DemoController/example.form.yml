@@ -1,22 +1,32 @@
 
-form:
+contactform:
   type: form
-  name: myform
+  label: Contact Information
   method: post
   children:
-    contact-fieldset:
-      type: form
-      name: contact
-      label: This is the legend
-      children:
-        username:
-          type: text
-          name: username
-          label: Enter your name
-          validators:
-            Digits: ~
-            NotBlank: { message: Its Bad. }
-        password:
-          type: password
-          name: password
-          label: Your password
+    username:
+      type: text
+      label: Enter your name
+      validators:
+        Digits: ~
+        NotBlank: { message: Its Bad. }
+    message:
+      type: textarea
+      label: Enter your message
+    option:
+      type: checkbox
+      label: Contact me when there is an update.
+    password:
+      type: password
+      label: Your password
+    pref:
+      type: choice
+      label: Choose your options
+      value: b
+      multiselect: false
+      expanded: false
+      choices:
+        a: First Option
+        b: second
+        c: third
+        d: forth

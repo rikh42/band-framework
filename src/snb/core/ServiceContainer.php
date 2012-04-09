@@ -105,6 +105,34 @@ class ServiceContainer implements ContainerInterface
 
 
 	/**
+	 * Performs a wildcard search for services.
+	 * eg "twig.extension.*"
+	 * @param $name
+	 * @return array of all the services that matched the wildcard
+	 */
+	public function getMatching($name)
+	{
+		// If there is no wildcard, just treat as get
+		if (strpos($name, '*')===false)
+			return array($this->get($name));
+
+		// There are wildcards in there, so built a regex and search
+		$regex = '/'.str_replace('*', '[^.]+', $name).'/';
+		$matching = array();
+		foreach ($this->services as $service => $ref)
+		{
+			if (preg_match($regex, $service))
+			{
+				// yes, this is a match, so we want to return this item
+				$matching[] = $this->get($service);
+			}
+		}
+
+		return $matching;
+	}
+
+
+	/**
 	 * Magic get function, so you can also go $container->database
 	 * @param $name
 	 * @return object|null

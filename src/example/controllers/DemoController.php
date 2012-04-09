@@ -29,7 +29,7 @@ class DemoController extends Controller
 
 	/**
 	 * Draws a simple "hello World" style sample page
-	 * @param $name
+	 * @param string $name
 	 * @return \snb\http\Response
 	 */
 	public function helloAction($name)
@@ -49,21 +49,19 @@ class DemoController extends Controller
 	 */
 	public function formAction()
 	{
+		/**
+		 * @var \snb\form\type\FormType $form
+		 */
+
 		// build the form
-		//$form = new FormBuilder('example:DemoController:example.form.yml', $this->container->get('kernel'));
-		$formBuilder = new FormBuilder($this->container->get('kernel'));
+		$formBuilder = $this->getFormBuilder();
 		$form = $formBuilder->loadForm('example:DemoController:example.form.yml');
 
 		// Process form submissions
-		$request = $this->getRequest();
-		if ($request->getMethod() == 'POST')
+		if ($form->onPostValid($this->getRequest()))
 		{
-			$form->bindRequest($request);
-			if ($form->isValid())
-			{
-				// redirect to hello
-				return $this->redirectResponse('hello', array('name'=>'Band'));
-			}
+			// redirect to hello
+			return $this->redirectResponse('hello', array('name'=>'Band'));
 		}
 
 		// get the data
@@ -89,6 +87,5 @@ class DemoController extends Controller
 		$r->setHTTPResponseCode(404);
 		return $r;
 	}
-
 }
 

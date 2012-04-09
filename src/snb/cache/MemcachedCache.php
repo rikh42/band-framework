@@ -12,7 +12,6 @@ use snb\core\ContainerAware;
 
 
 
-
 /**
  * MemcachedCache
  * A cache class that uses Memcached to perform the actual caching
@@ -22,16 +21,17 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 	protected $memCached;
 	protected $cacheKeyPrefix;
 
-	public function __construct($prefix)
+	public function __construct($host, $port, $prefix)
 	{
-		$this->memCached = new \Memcached();
+		// Key prefix to avoid clashes with other apps
 		$this->cacheKeyPrefix = $prefix;
-		//$this->cacheKeyPrefix = $this->container->get('config')->get('snb.cache.prefix');
-		//$this->servers = $this->container->get('config')->get('snb.cache.servers');
 
-		// this needs access to the settings
-		// find servers, key prefix
+		// Create a connection to memcached
+		$this->memCached = new \Memcached();
+		$this->memCached->addServer($host, $port);
 	}
+
+
 
 	/**
 	 * @param $key
@@ -45,7 +45,7 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 
 		// Try and find the object and check if it worked
 		$object = $this->memCached->get(md5($this->cacheKeyPrefix.$key));
-		if ($this->memCached->getResultCode() == \Memcached::RES_NOTFOUND)
+		if ($this->memCached->getResultCode() != \Memcached::RES_SUCCESS)
 			return null;
 
 		return $object;
@@ -69,7 +69,7 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 	/**
 	 * @param $key
 	 * @param $value
-	 * @param int $expire
+	 * @param int $expire - time in seconds to keep it in the cache
 	 */
 	public function set($key, $value, $expire = 60)
 	{
@@ -87,7 +87,8 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 
 	/**
 	 * @param $key
-	 * @param int $expire
+	 * @param int $amount
+	 * @return int
 	 */
 	public function increment($key, $amount=1)
 	{
@@ -100,7 +101,7 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 		$count = $this->memCached->increment($key, $amount);
 
 		// did it work?
-		if ($this->memCached->getResultCode() == \Memcached::RES_NOTFOUND)
+		if ($this->memCached->getResultCode() != \Memcached::RES_SUCCESS)
 			return 0;
 
 		return $count;

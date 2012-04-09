@@ -23,7 +23,6 @@ use snb\core\ConfigInterface;
  */
 class FormExtension extends \Twig_Extension
 {
-	protected $environment;
 	protected $template;
 	protected $config;
 
@@ -34,7 +33,6 @@ class FormExtension extends \Twig_Extension
 	 */
 	public function __construct(ConfigInterface $config)
 	{
-		$this->environment = null;
 		$this->template = null;
 		$this->config = $config;
 	}
@@ -43,19 +41,14 @@ class FormExtension extends \Twig_Extension
 
 
 	/**
-	 * At the moment we force the loading of a specific template.
-	 * This is bad. We should be getting this from a config setting
-	 * or have it injected into the class
+	 * Loads thte forms layout template
 	 * @param \Twig_Environment $environment
 	 */
 	public function initRuntime(\Twig_Environment $environment)
 	{
-		// Figure out the name of the layout script to use
-		$this->environment = $environment;
-
 		// Find the forms layout template
 		$templateName = $this->config->get('snb.forms.layout', '::forms.layout.twig');
-		$this->template = $this->environment->loadTemplate($templateName);
+		$this->template = $environment->loadTemplate($templateName);
 	}
 
 
@@ -78,7 +71,7 @@ class FormExtension extends \Twig_Extension
 	public function getFunctions()
 	{
 		return array(
-			'form_all'  => new \Twig_Function_Method($this, 'renderFormAll', array('is_safe' => array('html'))),
+			'draw_form'  => new \Twig_Function_Method($this, 'renderFormRow', array('is_safe' => array('html'))),
 			'form_row'  => new \Twig_Function_Method($this, 'renderFormRow', array('is_safe' => array('html'))),
 			'form_label'  => new \Twig_Function_Method($this, 'renderFieldLabel', array('is_safe' => array('html'))),
 			'form_widget'  => new \Twig_Function_Method($this, 'renderFieldWidgets', array('is_safe' => array('html'))),
@@ -109,17 +102,6 @@ class FormExtension extends \Twig_Extension
 		$this->template->displayBlock($typeAction, $data->all(), $blocks);
 		$html = ob_get_clean();
 		return $html;
-	}
-
-
-	/**
-	 * Renders all the widgets in a form (well, renders the block form_rows)
-	 * @param \snb\form\FormView $form
-	 * @return string
-	 */
-	public function renderFormAll(FormView $form)
-	{
-		return $this->render('rows', $form);
 	}
 
 
