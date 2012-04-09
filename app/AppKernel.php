@@ -23,9 +23,7 @@ class AppKernel extends Kernel
 		return array(
 			'app' 		=> __DIR__,
 			'framework' => __DIR__.'/../src/snb',
-			'example' 	=> __DIR__.'/../src/example',
-			'simplesite' => __DIR__.'/../src/simplesite',
-			'teamseer' 	=> __DIR__.'/../src/teamseer'
+			'example' 	=> __DIR__.'/../src/example'
 		);
 	}
 
@@ -37,7 +35,6 @@ class AppKernel extends Kernel
 	protected function getBootable()
 	{
 		return array(
-			new simplesite\SimpleSitePackage()
 		);
 	}
 
@@ -50,9 +47,9 @@ class AppKernel extends Kernel
 	protected function registerServices()
 	{
 		// use memcached for caching
-		//$this->addService('cache', 'snb\cache\NullCache');
-		$this->addService('cache', 'snb\cache\MemcachedCache')
-				->setArguments(array('::config::snb.cache.host', '::config::snb.cache.port', '::config::snb.cache.prefix'));
+		$this->addService('cache', 'snb\cache\NullCache');
+		//$this->addService('cache', 'snb\cache\MemcachedCache')
+		//		->setArguments(array('::config::snb.cache.host', '::config::snb.cache.port', '::config::snb.cache.prefix'));
 
 		// add the routes collection
 		$this->addService('routes', 'snb\routing\RouteCollection');

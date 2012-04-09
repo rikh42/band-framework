@@ -14,9 +14,7 @@ $loader = new AutoLoader();
 $loader->registerNamespaces(array(
 	'snb' => __DIR__.'/../src',
 	'Symfony' => __DIR__.'/../src',
-	'example' => __DIR__.'/../src',
-	'simplesite' => __DIR__.'/../src',
-	'teamseer' => __DIR__.'/../src'
+	'example' => __DIR__.'/../src'
 ));
 $loader->registerPrefixes(array(
 	'Twig_'            => __DIR__.'/../src/Symfony/Component/Twig/lib'
