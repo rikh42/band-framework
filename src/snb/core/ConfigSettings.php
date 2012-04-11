@@ -10,6 +10,9 @@
 namespace snb\core;
 
 use snb\core\ConfigInterface;
+use snb\core\KernelInterface;
+use snb\exceptions\CircularReferenceException;
+
 use Symfony\Component\Yaml\Yaml;
 
 
@@ -19,6 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 class ConfigSettings implements ConfigInterface
 {
 	protected $all;
+	protected $loading;
 
 
 	/**
@@ -27,6 +31,7 @@ class ConfigSettings implements ConfigInterface
 	public function __construct()
 	{
 		$this->all = array();
+		$this->loading = array();
 	}
 
 
@@ -93,13 +98,23 @@ class ConfigSettings implements ConfigInterface
 
 	/**
 	 * Loads in a yaml config file, flattens it and stores the results
-	 * in the config
-	 * @param $file
+	 * @param string $file - the name of the file to load
+	 * @param KernelInterface $kernel
+	 * @throws \snb\exceptions\CircularReferenceException
 	 */
-	public function load($file)
+	public function load($file, KernelInterface $kernel)
 	{
+		if (isset($this->loading[$file]))
+			throw new CircularReferenceException();
+
+		// we are now loading this file, so protect against loading it twice
+		$this->loading[$file] = true;
+
+		// try and find the file
+		$configPath = $kernel->findResource($file, 'config');
+
 		// Read in the content (file or string)
-		$content = Yaml::parse($file);
+		$content = Yaml::parse($configPath);
 
 		// bad data turns into an empty result
 		if ($content == null)
@@ -112,8 +127,21 @@ class ConfigSettings implements ConfigInterface
 		// Flatten the content down
 		$flat = array();
 		$this->flatten($content, $flat);
+
+		// See if the file includes an import command
+		if (array_key_exists('import', $flat))
+		{
+			// Yes, so load that first
+			$this->load($flat['import'], $kernel);
+		}
+
+		// replace any items already set in the config, with the items from this file
 		$this->all = array_replace($this->all, $flat);
+
+		// no longer loading this file
+		unset($this->loading[$file]);
 	}
+
 
 
 	/**

@@ -29,8 +29,8 @@ class ChoiceType extends FieldType
 
 
 	/**
-	 * Build the view, which may consist of child elements
-	 * @return \snb\form\FormView
+	 * Adjust the standard full name, depending on the state of multiselect and expanded
+	 * @return string
 	 */
 	public function getFullName()
 	{

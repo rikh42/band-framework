@@ -60,6 +60,175 @@ class AbstractType
 
 
 	/**
+	 * Called just before the data is loaded into the field
+	 * Lets you set any defaults etc
+	 */
+	public function beforeLoad()
+	{
+	}
+
+
+	/**
+	 * Called just after the element has been loaded / set up
+	 * allowing you to modify any data or perform any post processing you
+	 * need prior to the form being used.
+	 */
+	public function afterLoad()
+	{
+	}
+
+
+
+	/**
+	 * Find the name of the property that we are binding data in this field to.
+	 * By default it will be the same as the name of the field, but it can be
+	 * overridden by setting the 'binding' property on the field
+	 * @return string
+	 */
+	public function getObjectBinding()
+	{
+		if ($this->has('binding'))
+		{
+			return $this->get('binding');
+		}
+
+		// no specific binding was set, so try and
+		// bind to a property with the same name as the field
+		return $this->get('name');
+	}
+
+
+
+	/**
+	 * Reads a property from an object
+	 * We look for a getter, an isser (eg IsNewUser()) or a public property
+	 * @param $object - the object we are reading data from
+	 * @param $property - the name of the property to read
+	 * @param $default - a default value to use when we can't find the property
+	 * @return mixed - the value of the property
+	 */
+	protected function readProperty($object, $property, $default)
+	{
+		// try and find a value from the object
+		if (is_object($object))
+		{
+			// look for the properties of object
+			$reflection = new \ReflectionClass($object);
+			$get = 'get'.$property;
+			$is = 'is'.$property;
+
+			if ($reflection->hasMethod($get))
+			{
+				if ($reflection->getMethod($get)->isPublic())
+				{
+					// call the getter to read the value (eg $object->getUsername())
+					return $object->$get();
+				}
+			}
+			else if ($reflection->hasMethod($is))
+			{
+				if ($reflection->getMethod($is)->isPublic())
+				{
+					// call the getter to read the value (eg $object->isNewUser())
+					return $object->$is();
+				}
+			}
+			else if ($reflection->hasProperty($property))
+			{
+				if ($reflection->getProperty($property)->isPublic())
+				{
+					// The object has a public property of the right name, so just use that
+					return $object->$property;
+				}
+			}
+			elseif (property_exists($object, $property))
+			{
+				// need this test to work with stdClass objects
+				return $object->$property;
+			}
+		}
+
+		return $default;
+	}
+
+
+
+	/**
+	 * Writes a value into the appropriate property of the object
+	 * We look for a setter function, or a public property to write to
+	 * @param $object - the object we are writing to
+	 * @param $property - the name of the property to write to
+	 * @param $value - the value to write
+	 */
+	protected function writeProperty($object, $property, $value)
+	{
+		// try and find a value from the object
+		if (is_object($object))
+		{
+			// look for the properties of object
+			$reflection = new \ReflectionClass($object);
+			$set = 'set'.$property;
+
+			if ($reflection->hasMethod($set))
+			{
+				if ($reflection->getMethod($set)->isPublic())
+				{
+					// call the getter to read the value (eg $object->getUsername())
+					$object->$set($value);
+				}
+			}
+			else if ($reflection->hasProperty($property))
+			{
+				if ($reflection->getProperty($property)->isPublic())
+				{
+					// The object has a public property of the right name, so just use that
+					$object->$property = $value;
+				}
+			}
+			else if (property_exists($object, $property))
+			{
+				// need this test to work with stdClass objects
+				$object->$property = $value;
+			}
+			else if ($reflection->getShortName() == 'stdClass')
+			{
+				// if it really is a stdClass object, just allow writing to it.
+				$object->$property = $value;
+			}
+		}
+	}
+
+
+	/**
+	 * Updates the field to use the value from the object
+	 * @param $object
+	 */
+	protected function readFromObject($object)
+	{
+		// Find the name of the property we need to look for
+		$property = $this->getObjectBinding();
+
+		// default the value to be the current value
+		$value = $this->readProperty($object, $property, $this->get('value'));
+		$this->set('value', $value);
+	}
+
+
+
+	/**
+	 * Updates the object to use the latest value from the field
+	 * @param $object
+	 */
+	protected function writeToObject($object)
+	{
+		// Find the name of the property we need to look for
+		$property = $this->getObjectBinding();
+		$this->writeProperty($object, $property, $this->get('value'));
+	}
+
+
+
+	/**
 	 * Gets the html type of the field
 	 * @return string
 	 */

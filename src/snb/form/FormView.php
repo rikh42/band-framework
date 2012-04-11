@@ -140,7 +140,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function offsetGet($name)
 	{
-		return $this->getChild($name);
+		return $this->children[$name];
 	}
 
 	/**

@@ -2,31 +2,14 @@
 contactform:
   type: form
   label: Contact Information
-  method: post
   children:
     username:
       type: text
       label: Enter your name
-      validators:
-        Digits: ~
-        NotBlank: { message: Its Bad. }
+      binding: mapped
     message:
       type: textarea
       label: Enter your message
-    option:
-      type: checkbox
-      label: Contact me when there is an update.
-    password:
-      type: password
-      label: Your password
-    pref:
-      type: choice
-      label: Choose your options
-      value: b
-      multiselect: false
-      expanded: false
-      choices:
-        a: First Option
-        b: second
-        c: third
-        d: forth
+    test:
+      type: hidden
+      value: 42

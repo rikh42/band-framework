@@ -29,6 +29,8 @@ class FormType extends AbstractType
 	 */
 	public $children;
 
+	protected $boundObject;
+
 
 	public function __construct()
 	{
@@ -37,6 +39,9 @@ class FormType extends AbstractType
 
 		// Clear the children array
 		$this->children = array();
+
+		// we are not bound to anything yet
+		$this->boundObject = null;
 
 		// Force some default values for a form
 		$this->set('method', 'POST');
@@ -117,18 +122,80 @@ class FormType extends AbstractType
 
 
 	/**
+	 * Find all the data in the form and return it as an array
+	 * @return array
+	 */
+	public function getData()
+	{
+		$data = new \stdClass();
+		$this->writeToObject($data);
+		return get_object_vars($data);
+	}
+
+
+
+
+	/**
+	 * Associates an object with the form, linking data in the object to fields in the form
+	 * @param $object - an object with properties that can be bound to the form
+	 */
+	public function bindObject($object)
+	{
+		// store the object that we are binding to
+		$this->boundObject = $object;
+		if ($this->boundObject == null)
+			return;
+
+		// read data from the object into the form
+		$this->readFromObject($this->boundObject);
+	}
+
+
+	/**
+	 * Reads data for all the forms children
+	 * @param $object
+	 */
+	protected function readFromObject($object)
+	{
+		// The form object has no data, but pull the data into
+		// all my child fields.
+		foreach ($this->children as $child)
+			$child->readFromObject($object);
+	}
+
+
+	/**
+	 * Writes all the data from the forms children into the object
+	 * @param $object
+	 */
+	protected function writeToObject($object)
+	{
+		// The form object has no data
+		// so pass the call on to all my children
+		foreach ($this->children as $child)
+			$child->writeToObject($object);
+	}
+
+
+
+
+	/**
 	 * Binds data to all the children of this form
 	 * @param array $data
 	 */
 	public function bind($data)
 	{
-		// add the children to it
+		// set the data in all my children
 		foreach ($this->children as $child)
 		{
 			$name = $child->get('name');
 			if (isset($data[$name]))
 				$child->bind($data[$name]);
 		}
+
+		// write the values back to any bound objects
+		if ($this->boundObject != null)
+			$this->writeToObject($this->boundObject);
 	}
 
 

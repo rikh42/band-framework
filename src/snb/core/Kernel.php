@@ -53,7 +53,7 @@ class Kernel implements KernelInterface
 		$this->logger = new Logger(new BufferedHandler());
 		$this->logger->logTime('Creating Kernel');
 		$this->container = new ServiceContainer();
-		$this->environment = $env;
+		$this->environment = preg_replace('/[^a-z0-9]/', '', mb_strtolower($env));
 		$this->packages = array();
 	}
 
@@ -132,17 +132,19 @@ class Kernel implements KernelInterface
 	{
 		// load the config and add it as a service
 		$config = new ConfigSettings();
-		$configPath = $this->findResource($this->getConfigName(), 'config');
-		$config->load($configPath);
+		//$configPath = $this->findResource($this->getConfigName(), 'config');
+		$config->load($this->getConfigName(), $this);
 
 		// Add some services that are part of the system
 		$this->addService('config', $config);
 		$this->addService('kernel', $this);
+		$this->addService('routes', 'snb\routing\RouteCollection');
 		$this->addService('event-dispatcher', new EventDispatcher);
 		$this->addService('logger', $this->logger);
 		$this->addService('template.engine', 'snb\view\TwigView');
 		$this->addService('database', 'snb\core\Database')->addCall('init', array());
-		$this->addService('form.builder', 'snb\form\FormBuilder')->setArguments(array('::service::kernel', '::service::logger'));
+		$this->addService('session', 'snb\http\SessionStorage')->addCall('start');
+		$this->addService('form.builder', 'snb\form\FormBuilder');
 		$this->addService('twig.extension.routing', 'snb\view\RouteExtension')->setArguments(array('::service::routes'));
 		$this->addService('twig.extension.forms', 'snb\view\FormExtension')->setArguments(array('::service::config'));
 
@@ -160,7 +162,7 @@ class Kernel implements KernelInterface
 	 */
 	protected function getConfigName()
 	{
-		return '::config.yml';
+		return '::config-'.$this->environment.'.yml';
 	}
 
 

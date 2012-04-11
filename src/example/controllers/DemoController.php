@@ -60,6 +60,8 @@ class DemoController extends Controller
 		// Process form submissions
 		if ($form->onPostValid($this->getRequest()))
 		{
+			$mydata = $form->getData();
+
 			// redirect to hello
 			return $this->redirectResponse('hello', array('name'=>'Band'));
 		}

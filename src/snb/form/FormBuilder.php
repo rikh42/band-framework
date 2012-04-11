@@ -13,6 +13,7 @@
 
 namespace snb\form;
 use snb\core\ContainerAware;
+use snb\core\ContainerAwareInterface;
 use snb\core\ContainerInterface;
 use snb\core\KernelInterface;
 use snb\logger\LoggerInterface;
@@ -22,23 +23,15 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * A class to build forms from their yaml description
  */
-class FormBuilder extends ContainerAware
+class FormBuilder extends ContainerAware implements FormBuilderInterface
 {
-	protected $kernel;
-	protected $logger;
 	protected $extensions;
 	protected $form;
 
 
-	/**
-	 * @param \snb\core\KernelInterface $kernel
-	 * @param null|\snb\logger\LoggerInterface $logger
-	 */
-	public function __construct(KernelInterface $kernel, LoggerInterface $logger=null)
+	public function __construct()
 	{
 		// remember these - we'll need them later.
-		$this->kernel = $kernel;
-		$this->logger = $logger;
 		$this->extensions = array();
 
 		// Add the core extensions
@@ -49,6 +42,7 @@ class FormBuilder extends ContainerAware
 			'radio' => 'snb\form\type\RadioType',
 			'choice' => 'snb\form\type\ChoiceType',
 			'password' => 'snb\form\type\PasswordType',
+			'hidden' => 'snb\form\type\HiddenType',
 			'form' => 'snb\form\type\FormType',
 			'fieldset' => 'snb\form\type\FormType'	// Alias of form
 		));
@@ -75,7 +69,7 @@ class FormBuilder extends ContainerAware
 	public function loadForm($resource)
 	{
 		// Convert the resource name into a filename
-		$filename = $this->kernel->findResource($resource, 'forms');
+		$filename = $this->container->get('kernel')->findResource($resource, 'forms');
 
 		// Read in the content (file or string)
 		$content = Yaml::parse($filename);
@@ -113,13 +107,20 @@ class FormBuilder extends ContainerAware
 		// If the type is unknown, switch to text type
 		if (!array_key_exists($type, $this->extensions))
 		{
-			$this->logger->warning('Found unknown field type in form definition. Treating as Text', $type);
+			$this->container->get('logger')->warning('Found unknown field type in form definition. Treating as Text', $type);
 			$type = 'text';
 		}
 
 		// create the form element
 		$class = $this->extensions[$type];
 		$form = new $class;
+		if ($form instanceof ContainerAwareInterface)
+		{
+			$form->setContainer($this->container);
+		}
+
+		// Give the field a chance to act before any settings are loaded
+		$form->beforeLoad();
 
 		// default the name to the name of the element.
 		// may be overridden with the name: property
@@ -156,6 +157,7 @@ class FormBuilder extends ContainerAware
 			}
 		}
 
+		$form->afterLoad();
 		return $form;
 	}
 
