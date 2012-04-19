@@ -50,7 +50,8 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function addChild(FormView $child)
 	{
 		$child->setParent($this);
-		$this->children[] = $child;
+		$name = $child->get('name');
+		$this->children[$name] = $child;
 	}
 
 
@@ -128,14 +129,9 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 
 
-
-
-
 	/**
 	 * Returns a child by name (implements \ArrayAccess).
-	 *
 	 * @param string $name The child name
-	 *
 	 * @return FormView The child view
 	 */
 	public function offsetGet($name)
@@ -145,9 +141,7 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * Returns whether the given child exists (implements \ArrayAccess).
-	 *
 	 * @param string $name The child name
-	 *
 	 * @return Boolean Whether the child view exists
 	 */
 	public function offsetExists($name)
@@ -157,7 +151,6 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * Implements \ArrayAccess.
-	 *
 	 * @throws \BadMethodCallException always as setting a child by name is not allowed
 	 */
 	public function offsetSet($name, $value)
@@ -167,7 +160,6 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * Removes a child (implements \ArrayAccess).
-	 *
 	 * @param string $name The child name
 	 */
 	public function offsetUnset($name)
@@ -177,7 +169,6 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * Returns an iterator to iterate over children (implements \IteratorAggregate)
-	 *
 	 * @return \ArrayIterator The iterator
 	 */
 	public function getIterator()
@@ -187,7 +178,6 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * Implements \Countable.
-	 *
 	 * @return integer The number of children views
 	 */
 	public function count()

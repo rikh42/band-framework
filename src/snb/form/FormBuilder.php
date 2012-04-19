@@ -17,6 +17,7 @@ use snb\core\ContainerAwareInterface;
 use snb\core\ContainerInterface;
 use snb\core\KernelInterface;
 use snb\logger\LoggerInterface;
+use snb\form\type\CsrfType;
 use Symfony\Component\Yaml\Yaml;
 
 
@@ -26,13 +27,14 @@ use Symfony\Component\Yaml\Yaml;
 class FormBuilder extends ContainerAware implements FormBuilderInterface
 {
 	protected $extensions;
-	protected $form;
+	protected $formElements;
 
 
 	public function __construct()
 	{
 		// remember these - we'll need them later.
 		$this->extensions = array();
+		$this->formElements = array();
 
 		// Add the core extensions
 		$this->addExtensions(array(
@@ -62,6 +64,55 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 
 
 	/**
+	 * Adds an element to the form
+	 * @param $type
+	 * @param $name
+	 * @param array $options
+	 */
+	public function add($type, $name, $options=array())
+	{
+		// Store the data for this element
+		$element = array();
+		$element['type'] = $type;
+		$element['name'] = $name;
+		foreach($options as $key=>$value)
+		{
+			$element[$key] = $value;
+		}
+
+		// add it to the list
+		$this->formElements[] = $element;
+	}
+
+
+
+	/**
+	 * Returns a form based on the elements added so far
+	 * @param string $name
+	 * @param array $options
+	 * @return \snb\form\type\FormType
+	 */
+	public function getForm($name='form', $options=array())
+	{
+		// force the form to be a form :-)
+		$options['type'] = 'form';
+
+		// Add the all the children that have been added
+		$options['children'] = $this->formElements;
+
+		// reset the form builder, ready for the next form
+		$this->formElements = array();
+
+		// create the array in the format we are expecting
+		// and generate the form
+		$form = array($name => $options);
+		return $this->generateForm($form);
+	}
+
+
+
+
+	/**
 	 * sets up a form using a yaml script
 	 * @param $resource - the resource name of the forms yml file
 	 * @return snb\form\type\FormType
@@ -82,24 +133,56 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 		if (!is_array($content))
 			$content = array();
 
-		// check that their is a form
-		foreach($content as $name=>$form)
-		{
-			// just use the first entry in the file as the form
-			return $this->loadFormElement($form, $name);
-		}
-
-		// not reachable, unless the file is empty
-		return null;
+		// make the form from the array
+		return $this->generateForm($content);
 	}
 
 
 
 	/**
-	 * @param array $element
-	 * @return snb\form\type\FormType - or another field type
+	 * Support function that takes either the loaded yaml file, or
+	 * the internally generated form array, and actually creates the form from it
+	 * @param $content
+	 * @return \snb\form\type\FormType
 	 */
-	public function loadFormElement(array $element, $defaultName)
+	protected function generateForm($content)
+	{
+		// We actually are only interested in the first item in the content array
+		// We'll use foreach so we can extract the name and data easily
+		foreach($content as $name=>$formData)
+		{
+			// just use the first entry in the file as the form
+			$form = $this->loadFormElement($name, $formData);
+
+			// Decide if Csrf protection is enabled or disabled for this form
+			// we'll default it to enabled.
+			$enableCsrf = $form->get('csrf', true);
+			if ($enableCsrf)
+			{
+				// create a csrf field and add it to the form
+				$config = $this->container->get('config');
+				$secret = $config->get('snb.csrf.secret', md5($name));
+				$csrf = new CsrfType($secret, $name);
+				$form->addChild($csrf);
+			}
+
+			// return the form
+			return $form;
+		}
+
+		// not reachable, unless the file is empty
+		return null;
+
+	}
+
+
+
+	/**
+	 * @param string $defaultName
+	 * @param array $element
+	 * @return \snb\form\type\FormType - or another field type
+	 */
+	public function loadFormElement($defaultName, array $element)
 	{
 		// get the field type
 		$type = isset($element['type']) ? $element['type'] : 'text';
@@ -135,7 +218,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 				case 'children':
 					foreach($value as $name=>$child)
 					{
-						$childForm = $this->loadFormElement($child, $name);
+						$childForm = $this->loadFormElement($name, $child);
 						$form->addChild($childForm);
 					}
 					break;

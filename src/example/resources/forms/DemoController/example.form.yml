@@ -6,10 +6,9 @@ contactform:
     username:
       type: text
       label: Enter your name
-      binding: mapped
     message:
       type: textarea
       label: Enter your message
-    test:
-      type: hidden
-      value: 42
+      attributes:
+        data-test: testing
+        data-other: Attributes rock

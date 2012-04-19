@@ -19,6 +19,7 @@ use snb\logger\Logger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use snb\events\RequestEvent;
+use snb\events\RouteEvent;
 
 
 
@@ -132,7 +133,6 @@ class Kernel implements KernelInterface
 	{
 		// load the config and add it as a service
 		$config = new ConfigSettings();
-		//$configPath = $this->findResource($this->getConfigName(), 'config');
 		$config->load($this->getConfigName(), $this);
 
 		// Add some services that are part of the system
@@ -372,17 +372,25 @@ class Kernel implements KernelInterface
 
 			// Try and find a route that matches the request
 			$route = $routes->findMatchingRoute($request);
+
+			// If we have no valid route, then try something else.
 			if ($route == null)
 			{
-				// No route found that matches the request,
-				// so look for the 404 route instead
+				// No route given. See if we have a 404 route defined?
 				$route = $routes->find('404');
 				if ($route == null)
 				{
-					// No 404 route defined, so we'll have to throw an exception
-					throw new \InvalidArgumentException('Could not find a matching route, or a 404 route');
+					// nope, just return now
+					return new Response("404, Page Not Found", 404);
 				}
 			}
+
+			// send out another event, this time giving systems a chance
+			// to change or modify the selected route
+			$routeEvent = new RouteEvent($route, $routes);
+			$dispatcher->dispatch('kernel.route', $routeEvent);
+			if ($routeEvent->hasRoute())
+				$route = $routeEvent->getRoute();
 
 			// Find info on the controller we'll need to call
 			$controllerName = $route->getController();

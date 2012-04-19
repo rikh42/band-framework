@@ -441,7 +441,18 @@ class AbstractType
 	 */
 	public function addError($msg)
 	{
-		$this->errors[] = $msg;
+		// Does this field bubble its error messages up to its parent?
+		$bubbleErrors = $this->get('bubble_errors', false);
+		if (!$bubbleErrors)
+		{
+			// nope, so store them here
+			$this->errors[] = $msg;
+			return;
+		}
+
+		// if we have a parent, push the error up there
+		if ($this->parent != null)
+			$this->parent->addError($msg);
 	}
 }
 

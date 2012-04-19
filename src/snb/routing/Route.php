@@ -32,13 +32,15 @@ class Route
 
 
 	/**
-	 * @param string $url - The url pattern
+	 * @param $name
+	 * @param $url
 	 * @param array $options
 	 * @param array $placeholders
 	 * @param array $defaults
 	 */
-	public function __construct($url, array $options, array $placeholders, array $defaults)
+	public function __construct($name, $url, array $options, array $placeholders, array $defaults)
 	{
+		$this->name = $name;
 		$this->url = $url;
 		$this->options = $options;
 		$this->placeholders = $placeholders;

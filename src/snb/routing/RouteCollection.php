@@ -141,7 +141,7 @@ class RouteCollection extends ContainerAware implements UrlGeneratorInterface
 				continue;
 
 			// create the route
-			$route = new Route($item['url'], $options, $placeholders, $defaults);
+			$route = new Route($name, $item['url'], $options, $placeholders, $defaults);
 			$this->routes[$name] = $route;
 		}
 	}

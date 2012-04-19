@@ -28,7 +28,6 @@ class FormType extends AbstractType
 	 * @var array
 	 */
 	public $children;
-
 	protected $boundObject;
 
 

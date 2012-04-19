@@ -55,7 +55,7 @@ class Request
 	 * @param $get
 	 * @param $post
 	 * @param $server
-	 * @param $cookie
+	 * @param $cookies
 	 * @param $files
 	 */
 	protected function init($get, $post, $server, $cookies, $files)

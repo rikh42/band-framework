@@ -17,6 +17,19 @@ use snb\form\type\FieldType;
 
 class HiddenType extends FieldType
 {
+
+	public function __construct()
+	{
+		// Do the normal thing
+		parent::__construct();
+
+		// Since hidden fields are hidden (duh!), any validation errors
+		// they generate should be bubbled up to their parent
+		$this->set('bubble_errors', true);
+	}
+
+
+
 	/**
 	 * Gets the html type of the field
 	 * @return string
