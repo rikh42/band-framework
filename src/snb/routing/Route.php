@@ -87,7 +87,7 @@ class Route
 		$method = $this->getMethod();
 		if ($method)
 		{
-			$m = explode('|', mb_strtoupper($this->method));
+			$m = explode('|', mb_strtoupper($method));
 			if (!in_array($request->getMethod(), $m))
 			{
 				return false;

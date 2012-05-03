@@ -20,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use snb\events\RequestEvent;
 use snb\events\RouteEvent;
+use snb\events\ResponseEvent;
 
 
 
@@ -29,10 +30,9 @@ use snb\events\RouteEvent;
  * bundles and services, and handles routing requests to controllers and
  * dealing with the response
  */
-class Kernel implements KernelInterface
+class Kernel extends ContainerAware implements KernelInterface
 {
 	protected $booted;
-	protected $container;
 	protected $settings;
 	protected $environment;
 	protected $packages;
@@ -51,9 +51,9 @@ class Kernel implements KernelInterface
 	public function __construct($env, $starttime)
 	{
 		$this->booted = false;
+		$this->setContainer(new ServiceContainer());
 		$this->logger = new Logger(new BufferedHandler());
 		$this->logger->logTime('Creating Kernel');
-		$this->container = new ServiceContainer();
 		$this->environment = preg_replace('/[^a-z0-9]/', '', mb_strtolower($env));
 		$this->packages = array();
 	}
@@ -144,9 +144,14 @@ class Kernel implements KernelInterface
 		$this->addService('template.engine', 'snb\view\TwigView');
 		$this->addService('database', 'snb\core\Database')->addCall('init', array());
 		$this->addService('session', 'snb\http\SessionStorage')->addCall('start');
+		$this->addService('auth', 'snb\security\Auth')->setArguments(array('::service::auth.token', '::service::auth.context', '::service::event-dispatcher'));
+		$this->addService('auth.token', 'snb\security\SecurityToken');
+		$this->addService('auth.context', 'snb\security\SecurityContext');
+		$this->addService('auth.userprovider', 'snb\security\DatabaseUserProvider')->setArguments(array('::service::database'));
 		$this->addService('form.builder', 'snb\form\FormBuilder');
 		$this->addService('twig.extension.routing', 'snb\view\RouteExtension')->setArguments(array('::service::routes'));
 		$this->addService('twig.extension.forms', 'snb\view\FormExtension')->setArguments(array('::service::config'));
+		$this->addService('db.migrate', 'snb\core\Migrate')->setArguments(array('::service::database', '::service::logger'))->addCall('ensureMigrationTable');
 
 		// Register some app specific services
 		$this->registerServices();
@@ -412,6 +417,12 @@ class Kernel implements KernelInterface
 				}
 			}
 
+			// Send another message out, with the response in it
+			// in case anyone wants to modify the response
+			$responseEvent = new ResponseEvent($response);
+			$dispatcher->dispatch('kernel.response', $responseEvent);
+
+			// Finally, return it
 			return $response;
 		}
 		catch (\Exception $e)

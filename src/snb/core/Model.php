@@ -8,7 +8,7 @@
 
 
 namespace snb\core;
-use snb\core\Database;
+use snb\core\DatabaseInterface;
 use snb\logger\LoggerInterface;
 
 
@@ -30,7 +30,7 @@ class Model extends ContainerAware
 
 
 	/**
-	 * @return snb\core\Database
+	 * @return snb\core\DatabaseInterface
 	 */
 	public function getDatabase()
 	{

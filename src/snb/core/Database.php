@@ -8,18 +8,20 @@
 
 
 namespace snb\core;
-use \PDO;
-use \PDOException;
+use snb\core\DatabaseInterface;
 use snb\core\ConnectionInfo;
 use snb\core\ContainerAware;
 use snb\logger\LoggerInterface;
+
+use \PDO;
+use \PDOException;
 
 
 //=====================================
 // Database
 // The core Database management layer
 //=====================================
-class Database extends ContainerAware
+class Database extends ContainerAware implements DatabaseInterface
 {
 	// Class data begins properly here.
 	protected $pdo = null;
@@ -50,7 +52,7 @@ class Database extends ContainerAware
 	// __construct
 	// attempts to initialise the database connection
 	//=====================================
-	function __construct()
+	public function __construct()
 	{
 		// set some defaults
 		$this->lastQuery = '';
@@ -156,7 +158,7 @@ class Database extends ContainerAware
 			}
 			catch (PDOException $e)
 			{
-				$this->logger->error('Database: Connection to '.$name.' failed: ' . $e->getMessage());
+				$this->logger->error('Database: Connection to '.$this->activeConnection.' failed: ' . $e->getMessage());
 			}
 		}
 
@@ -199,17 +201,30 @@ class Database extends ContainerAware
 	// binds the named params in the query to values passed in
 	// eg. $params['int:iUser'] = 5; would bind the value 5 to the named argument :iUser as an integer
 	//=====================================
-	protected function autoBind(\PDOStatement $statement, $params)
+	protected function autoBind(\PDOStatement $statement, $query, $params)
 	{
 		// If the params passed in is an array, bind its contents, else ignore it
 		if (!is_array($params))
 			return;
 
+		// We need to find all the items in the query that look like potential binds
+		// query is in the form 'select sql blar x = :varname, y=:otherName'
+		if (preg_match_all('/:[a-z]+/iu', $query, $toBind)===false)
+			return;
+
+		// This list of bound variable names in the query can now be found in $toBind[0]...
+
+		// Try and match the arguments to the list
 		foreach($params as $key=>$value)
 		{
 			// check each parameter and bind any that appear valid
 			if (preg_match('/^([a-z]+)(:[a-z]+)$/iu', $key, $regs))
 			{
+				// Check that this var is in the list of items needing to be bound
+				if (!in_array($regs[2], $toBind[0]))
+					continue;
+
+				// it is, so process the type and bind it
 				$typeName = mb_strtolower($regs[1]);
 				switch ($typeName)
 				{
@@ -232,6 +247,16 @@ class Database extends ContainerAware
 
 				// bind the value to the statement
 				$statement->bindValue($regs[2], $value, $type);
+			}
+			else if (preg_match('/^([a-z]+)$/iu', $key))
+			{
+				// Check that key (eg iUser) is in the binding list (eg :iUser)
+				if (!in_array(':'.$key, $toBind[0]))
+					continue;
+
+				// assume they are using the simpler format of $params['iUser'] = 5
+				// we don't know the type in this situation, so we can just bind away
+				$statement->bindValue($key, $value);
 			}
 		}
 	}
@@ -262,7 +287,7 @@ class Database extends ContainerAware
 			$stmt = $this->pdo->prepare($query);
 			if ($stmt)
 			{
-				$this->autoBind($stmt, $params);
+				$this->autoBind($stmt, $query, $params);
 				if ($stmt->execute())
 				{
 					// pull the data from the statement
@@ -351,7 +376,7 @@ class Database extends ContainerAware
 	// query
 	// general insert or update query
 	//=====================================
-	function query($query, $params=null)
+	public function query($query, $params=null)
 	{
 		try
 		{
@@ -369,7 +394,7 @@ class Database extends ContainerAware
 			$stmt = $this->pdo->prepare($query);
 			if ($stmt)
 			{
-				$this->autoBind($stmt, $params);
+				$this->autoBind($stmt, $query, $params);
 				if ($stmt->execute())
 				{
 					// Try and grab the resulting insert id
@@ -399,7 +424,7 @@ class Database extends ContainerAware
 	// It is reset to 0 with every query made to the database, so you will need to get
 	// this value right away if you need it.
 	//=====================================
-	function getLastInsertID()
+	public function getLastInsertID()
 	{
 		return (int) $this->lastInsertID;
 	}
@@ -411,7 +436,7 @@ class Database extends ContainerAware
 	// getLastInsertIDString
 	// gets the index of the row inserted in the last query as a string.
 	//=====================================
-	function getLastInsertIDString()
+	public function getLastInsertIDString()
 	{
 		return $this->lastInsertID;
 	}

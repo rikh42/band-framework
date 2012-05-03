@@ -121,6 +121,26 @@ class FormType extends AbstractType
 
 
 	/**
+	 * Determine if we have any editable fields in the form
+	 * @return bool
+	 */
+	public function isEditable()
+	{
+		// ask all my children if they are editable.
+		foreach ($this->children as $child)
+		{
+			// if any of my children are editable, I am editable
+			if ($child->isEditable())
+				return true;
+		}
+
+		return false;
+	}
+
+
+
+
+	/**
 	 * Find all the data in the form and return it as an array
 	 * @return array
 	 */

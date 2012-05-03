@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="app/autoload.php" colors="true"
+		 backupGlobals="false"
+		 backupStaticAttributes="false"
+		 syntaxCheck="false"
+		 verbose="true">
+	<testsuites>
+		<testsuite name="Framework">
+			<file>/band/src/snb/tests/RouteTest.php</file>
+		</testsuite>
+	</testsuites>
+
+</phpunit>

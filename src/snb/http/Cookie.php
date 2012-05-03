@@ -25,9 +25,15 @@ class Cookie
 	public $httpOnly;
 
 
-	//==============================
-	// Create and set up a cookie
-	//==============================
+	/**
+	 * @param $name - the name of the cookie
+	 * @param $value - the value to store in the cookie
+	 * @param $expire - The timestamp of when to expire the cookie. 0=end of session. <0 means delete cookie
+	 * @param string $path - the path that the cookie is limited to
+	 * @param null $domain
+	 * @param bool $secure - true to only send this cookie over https connections
+	 * @param bool $httpOnly - true to prevent cookie being accessible to javascript on client
+	 */
 	function __construct($name, $value, $expire=-1, $path='/', $domain=null, $secure=false, $httpOnly=true)
 	{
 		// strip out characters that can not be stored in cookies
@@ -36,10 +42,14 @@ class Cookie
 
 		// validate some values
 		$expire = (int) $expire;
+
+		// Less than zero means delete cookie
+		// Zero means keep for session
+		// Greater than zero expire at the timestamp given
 		if ($expire<0)
 		{
 			// a negative value is treated as "in the past"
-			// pick a time that is a month ago
+			// pick a time that is a month ago to be sure of it being "out of date"
 			// really, this should delete the cookie on the client
 			$expire = time() - (60*60*24*30);
 		}
@@ -55,10 +65,9 @@ class Cookie
 	}
 
 
-	//==============================
-	// setCookie
-	// Sets the cookie in the headers
-	//==============================
+	/**
+	 * Sets the cookie in the headers
+	 */
 	public function setCookie()
 	{
 		setcookie($this->name, $this->value, $this->expire, $this->path, $this->domain, $this->secure, $this->httpOnly);

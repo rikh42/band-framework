@@ -141,11 +141,21 @@ class AbstractType
 					return $object->$property;
 				}
 			}
+			elseif (isset($object->$property))
+			{
+				// need this to support magic getters and setters
+				return $object->$property;
+			}
 			elseif (property_exists($object, $property))
 			{
 				// need this test to work with stdClass objects
 				return $object->$property;
 			}
+		}
+		else if (is_array($object))
+		{
+			if (array_key_exists($property, $object))
+				return $object[$property];
 		}
 
 		return $default;
@@ -190,12 +200,23 @@ class AbstractType
 				// need this test to work with stdClass objects
 				$object->$property = $value;
 			}
+			elseif (isset($object->$property))
+			{
+				// need this to support magic getters and setters
+				$object->$property = $value;
+			}
 			else if ($reflection->getShortName() == 'stdClass')
 			{
 				// if it really is a stdClass object, just allow writing to it.
 				$object->$property = $value;
 			}
 		}
+		else if (is_array($object))
+		{
+			if (array_key_exists($property, $object))
+				$object[$property] = $value;
+		}
+
 	}
 
 
@@ -333,6 +354,24 @@ class AbstractType
 
 
 
+	/**
+	 * Determines if the control is editable (ie if it were part of a form,
+	 * could the user change the value and submit it back again).
+	 * readonly fields can't, but also things like hidden fields can't be edited
+	 * @return bool
+	 */
+	public function isEditable()
+	{
+		// If there is no readonly property set, assume it is editable
+		if (!$this->has('readonly'))
+			return true;
+
+		// the readonly property indicates if the field can be edited
+		// we can't guarantee that this flag is true or false, so force it down to a valid result
+		return $this->get('readonly')?false:true;
+	}
+
+
 
 	/**********************************
 	 * Properties
@@ -375,6 +414,18 @@ class AbstractType
 	{
 		return array_key_exists((string)$name, $this->properties);
 	}
+
+
+
+	/**
+	 * Removes a property from the field
+	 * @param $name
+	 */
+	public function remove($name)
+	{
+		unset($this->properties[$name]);
+	}
+
 
 
 

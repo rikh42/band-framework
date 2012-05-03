@@ -286,6 +286,15 @@ class Request
 	//==============================
 	public function getClientIp()
 	{
+		if ($this->headers->has('Client-Ip'))
+		{
+			return $this->headers->get('Client-Ip');
+		}
+		elseif ($this->trustProxy && $this->headers->has('X-Forwarded-For'))
+		{
+			return $this->headers->get('X-Forwarded-For');
+		}
+
 		return $this->server->get('REMOTE_ADDR');
 	}
 

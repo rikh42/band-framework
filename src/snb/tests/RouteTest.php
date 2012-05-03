@@ -13,19 +13,22 @@ use snb\http\Request;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * Test that routes Match
+	 */
 	public function testRouteMatches()
 	{
 		// create a request
 		$request = Request::create('/blog/42/testing-routes');
 
 		// Create a route
-		$r = new Route('/blog/{page}/::{section}',
-			array('controller'=>'example:DemoController:hello'),
+		$r = new Route('blogtest', '/blog/{page}/::{section}',
+			array('controller'=>'example:DemoController:hello', 'method'=>'GET'),
 			array('page'=>'int', 'section'=>'slug'),
 			array('section'=>'fish'));
 
 		// Test that the route matches the request
-		$this->assertTrue($r->isMatch($request));
+		$this->assertTrue($r->isMatch('/blog/42/testing-routes', $request));
 
 		// test that the controller is as expected
 		$this->assertEquals($r->getController(), 'example\controllers\DemoController');
@@ -39,42 +42,58 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($arguments['page'], 42);
 		$this->assertEquals($arguments['section'], 'testing-routes');
 
-		//$url = $r->generate(array('section'=>'a not so <clean> value', 'name'=>'test','page'=>1234));
+		// Test that optional arguments are correctly handled
+		$this->assertTrue($r->isMatch('/blog/42/', $request));
+		$arguments = $r->getArguments();
+		$this->assertEquals($arguments['section'], 'fish');
+
+		// Check a POST request against a routes with a method
+		$request = Request::create('/blog/42/testing-routes', 'POST');
+		$this->assertFalse($r->isMatch('/blog/42/', $request));
 	}
 
 
+
+	/**
+	 * Testing routes don't match
+	 */
 	public function testRouteNotMatching()
 	{
 		// create a request
 		$request = Request::create('/blog/42/testing-routes');
 
 		// Create a route
-		$r = new Route('/blog/test/{page}',
+		$r = new Route('blogtest', '/blog/test/{page}',
 			array('controller'=>'example:DemoController:hello'),
 			array(), array());
 
 		// Test that the route matches the request
-		$this->assertFalse($r->isMatch($request));
+		$this->assertFalse($r->isMatch('/blog/42/testing-routes', $request));
 	}
 
+
+
+	/**
+	 * Testing the same URL with different data types for the placeholders
+	 */
 	public function testRouteWrongDataType()
 	{
 		// create a request
 		$request = Request::create('/blog/test/42');
 
 		// Create a route
-		$r = new Route('/blog/test/{page}',
+		$r = new Route('blogtest', '/blog/test/{page}',
 			array('controller'=>'example:DemoController:hello'),
 			array('page'=>'int'), array());
 
 		// Test that the route matches the request
-		$this->assertTrue($r->isMatch($request));
+		$this->assertTrue($r->isMatch('/blog/test/42', $request));
 
-		$r = new Route('/blog/test/{page}',
+		$r = new Route('another', '/blog/test/{page}',
 			array('controller'=>'example:DemoController:hello'),
 			array('page'=>'alpha'), array());
 
-		$this->assertFalse($r->isMatch($request));
+		$this->assertFalse($r->isMatch('/blog/test/42', $request));
 	}
 
 }

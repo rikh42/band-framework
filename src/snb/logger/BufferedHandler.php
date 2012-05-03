@@ -39,9 +39,9 @@ class BufferedHandler implements HandlerInterface
 		{
 			echo $line['time']->format('Y-m-d H:i:s').' ';
 			echo $line['level'].' - ';
-			echo $line['message'].'<br>';
-			print_r($line['extradata']);
-			echo '<br><br>';
+			echo $line['message']."\n";
+			//print_r($line['extradata']);
+			//echo "\n\n";
 		}
 	}
 }

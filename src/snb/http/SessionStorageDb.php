@@ -10,7 +10,7 @@
 namespace snb\http;
 
 use snb\http\SessionStorageInterface;
-use snb\core\Database;
+use snb\core\DatabaseInterface;
 
 
 
@@ -26,7 +26,7 @@ class SessionStorageDb extends SessionStorage
 	//==============================
 	// __construct
 	//==============================
-	public function __construct(Database $database)
+	public function __construct(DatabaseInterface $database)
 	{
 		parent::__construct();
 

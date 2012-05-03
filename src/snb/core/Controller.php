@@ -12,7 +12,7 @@ namespace snb\core;
 use snb\core\ContainerAware;
 use snb\http\Response;
 
-use snb\core\Database;
+use snb\core\DatabaseInterface;
 use snb\http\Request;
 use snb\logger\LoggerInterface;
 use snb\form\FormBuilder;
@@ -112,7 +112,7 @@ class Controller extends ContainerAware
 	}
 
 	/**
-	 * @return snb\core\Database
+	 * @return snb\core\DatabaseInterface
 	 */
 	public function getDatabase()
 	{

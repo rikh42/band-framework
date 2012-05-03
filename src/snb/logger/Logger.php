@@ -57,8 +57,8 @@ class Logger implements LoggerInterface
 		if ($this->handler == null)
 			return;
 
-		//$this->logTime('END');
-		//$this->handler->dump();
+		$this->logTime('END');
+		$this->handler->dump();
 	}
 
 

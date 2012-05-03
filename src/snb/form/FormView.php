@@ -107,6 +107,20 @@ class FormView implements \ArrayAccess, \IteratorAggregate, \Countable
 	}
 
 
+
+	/**
+	 * Removes a property from the field
+	 * @param $name
+	 */
+	public function remove($name)
+	{
+		unset($this->vars[$name]);
+	}
+
+
+
+
+
 	/**
 	 * Gets all the vars in the view
 	 * @return array

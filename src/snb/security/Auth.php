@@ -8,17 +8,25 @@
 
 
 namespace snb\security;
+use snb\core\ContainerAware;
+use snb\security\SecurityContext;
+use snb\security\SecurityToken;
+use snb\security\PasswordHash;
+use snb\http\SessionStorage;
+use snb\http\Request;
+use snb\http\Response;
+use snb\http\Cookie;
+use snb\events\ResponseEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use \snb\security\SecurityContext;
-use \snb\security\SecurityToken;
-use \snb\security\PasswordHash;
-use \snb\core\Controller;
-use \snb\core\SessionStorage;
-use \snb\http\Request;
-use \snb\http\Response;
-use \snb\core\Database;
-use \snb\http\Cookie;
 
+/**
+ * Notes:
+ *
+ * Should this perhaps store the cookies it wants to write to the response.
+ * When it decides it wants to write a cookie, it has to register for the
+ * kernel.response event that lets you modify responses before they are sent...
+ */
 
 
 //==============================
@@ -27,27 +35,24 @@ use \snb\http\Cookie;
 // the session or from a cookie.
 // naturally, there needs to be some validation of this process
 //==============================
-class Auth
+class Auth extends ContainerAware
 {
-	protected $request;
-	protected $response;
 	protected $identity;
 	protected $context;
-
-
+	protected $cookieJar;
 
 
 	//==============================
 	// __construct
 	//==============================
-	function __construct(Request $request, Response $response)
+	function __construct(SecurityTokenInterface $token, SecurityContext $context, EventDispatcherInterface $dispatcher)
 	{
-		$this->request = $request;
-		$this->response = $response;
-		$this->identity = new SecurityToken();
+		$this->identity = $token;
+		$this->context = $context;
+		$this->cookieJar = array();
 
-		// Could we work out a suitable context from the request ourselves, in here
-		$this->context = null;
+		// and register our interest in the kernel response event
+		$dispatcher->addListener('kernel.response', array($this, 'addCookiesToResponse'), 100);
 	}
 
 
@@ -96,7 +101,7 @@ class Auth
 	//==============================
 	public function getToken()
 	{
-		return $this->identity->getValue();
+		return $this->identity->getTokenString();
 	}
 
 
@@ -122,19 +127,22 @@ class Auth
 	public function signOut()
 	{
 		// drop the session
-		$session = $this->request->getSession();
+		$session = $this->container->get('session');
 		if ($session)
 			$session->remove($this->context->name);
 
 		// drop the cookie
-		$cookies = $this->request->cookies;
-		$cookies->remove($this->context->name);
+		$request = $this->container->get('request');
+		if ($request)
+		{
+			$cookies = $request->cookies;
+			$cookies->remove($this->context->name);
+		}
 
 		// and prevent it coming back by replacing it with an empty value that has expired
-		$inThePast = time() - $this->context->life;
 		$empty = '';
-		$cookie = new Cookie($this->context->name, $empty, $inThePast, $this->context->path);
-		$this->response->addCookie($cookie);
+		$cookie = new Cookie($this->context->name, $empty, -1, $this->context->path);
+		$this->cookieJar[] = $cookie;
 
 		// If they log out, should that log them out everywhere?
 		// I think so.
@@ -166,7 +174,7 @@ class Auth
 			return false;
 
 		// and put something into the session
-		\Logger::log('Auto sign in using passed token worked. Writing data to session');
+		// LOG: Auto sign in using passed token worked. Writing data to session
 		$this->writeSession();
 		return true;
 	}
@@ -182,8 +190,8 @@ class Auth
 	protected function signInFromSession()
 	{
 		// load in the token values from the session
-		$session = $this->request->getSession();
-		if ((!$session) || (!$this->context))
+		$session = $this->container->get('session');
+		if (!$session)
 			return false;
 
 		// try and load the session value into the identity
@@ -195,7 +203,7 @@ class Auth
 			return false;
 
 		// All ok
-		\Logger::log('Auto sign in using session worked.');
+		// LOG: Auto sign in using session worked
 		return true;
 	}
 
@@ -209,12 +217,12 @@ class Auth
 	protected function signInFromCookie()
 	{
 		// try and get access to the cookies
-		$cookies = $this->request->cookies;
-		if (!$cookies)
+		$request = $this->container->get('request');
+		if (!$request)
 			return false;
 
-		// make sure we have a valid context
-		if (!$this->context)
+		$cookies = $request->cookies;
+		if (!$cookies)
 			return false;
 
 		// Get the token in the cookie, if it exists
@@ -227,7 +235,7 @@ class Auth
 			return false;
 
 		// Yes, it is good, so re-issue the updated cookie and put something in the session
-		\Logger::log('Auto sign in using cookie worked. updating cookie and session');
+		// LOG: Auto sign in using cookie worked. updating cookie and session
 		$this->writeCookie();
 		$this->writeSession();
 		return true;
@@ -260,54 +268,51 @@ class Auth
 			return true;
 
 		// failed to find any valid source
-		\Logger::log('Auto sign failed to find suitable credentials');
+		// LOG: Auto sign failed to find suitable credentials
 		return false;
 	}
 
 
 
 
-	//==============================
-	// authoriseSimple
-	// Generates a new security token for a new user in a new account.
-	// Does nothing with cookies or sessions, as both of those can not be used to map the
-	// token into the new account (due to a domain name change at this same point).
-	//==============================
+	/**
+	 * Given a username and password, finds out the users password hash,
+	 * validates that it is a good match to the password.
+	 * If all is well, we generate and store a token that can be used
+	 * that can be used to provide access in future requests.
+	 * Note that this function will not deal with sessions or cookies though.
+	 * See authorise() for that.
+	 * @param $username
+	 * @param $password
+	 * @return bool - true if the username and password are valid
+	 */
 	public function authoriseSimple($username, $password)
 	{
 		// default to fail
 		$this->identity->reset();
-		\Logger::log('Attempting to authorise user');
+		// LOG:Attempting to authorise user
 
 		// Try and find the user
-		$db = Database::getInstance();
-		$sql = "SELECT ixUser, sHash FROM userinfo WHERE sUserName=:username";
-		$params = array('text:username'=> $username);
-		$user = $db->row($sql, $params);
-
-		// if there was no user, fail
-		if (!$user)
-		{
-			\Logger::log('Failed: no user');
+		$userProvider = $this->container->get('auth.userprovider');
+		if (!$userProvider->loadFromUserName($username))
 			return false;
-		}
 
 		// Check to see if the password is valid
 		$pw = new PasswordHash();
-		if (!$pw->ValidatePassword($password, $user->sHash))
+		if (!$pw->ValidatePassword($password, $userProvider->getUserHash()))
 		{
-			\Logger::log('Failed: bad password');
+			// LOG: Failed: bad password
 			return false;
 		}
 
-		// Pick a lifetime for the token
+		// Pick a lifetime for the token (default to 10 mins)
 		$life = 600;
 		if ($this->context)
 			$life = $this->context->life;
 
 		// I guess it must be good. Generate a new token, in a new series
-		$this->identity->generateToken($user->ixUser, time() + $life);
-		\Logger::log('Worked: regenerated token');
+		$this->identity->generateToken($userProvider->getUserId(), time() + $life);
+		// LOG: Worked: regenerated token
 		return true;
 	}
 
@@ -345,10 +350,14 @@ class Auth
 	//==============================
 	protected function writeSession()
 	{
+		/**
+		 * @var \snb\http\SessionStorageInterface $session
+		 */
+
 		// get the session and write the value into it
-		$session = $this->request->getSession();
+		$session = $this->container->get('session');
 		if ($session)
-			$session->set($this->context->name, $this->identity->getValue());
+			$session->set($this->context->name, $this->identity->getTokenString());
 	}
 
 
@@ -363,12 +372,40 @@ class Auth
 		// Create a cookie to send off
 		$cookie = new Cookie(
 					$this->context->name,
-					$this->identity->getValue(),
+					$this->identity->getTokenString(),
 					$this->identity->expires,
 					$this->context->path);
 
-		// then we want to add this to the response
-		$this->response->addCookie($cookie);
+		// Just store this away for now
+		$this->cookieJar[] = $cookie;
+	}
+
+
+
+
+	/**
+	 * Event Handler for the Response Event. We hook into this to add our
+	 * Cookies to the response at the proper time
+	 * @param \snb\events\ResponseEvent $event
+	 * @return null
+	 */
+	public function addCookiesToResponse(ResponseEvent $event)
+	{
+		// do nothing if there are no cookies here
+		if (count($this->cookieJar)==0)
+			return;
+
+		// Get access to the response
+		$response = $event->getResponse();
+
+		// Add all the waiting cookies to it...
+		foreach($this->cookieJar as $cookie)
+		{
+			$response->addCookie($cookie);
+		}
+
+		// empty out the jar
+		$this->cookieJar = array();
 	}
 
 }

@@ -45,6 +45,8 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 			'choice' => 'snb\form\type\ChoiceType',
 			'password' => 'snb\form\type\PasswordType',
 			'hidden' => 'snb\form\type\HiddenType',
+			'email' => 'snb\form\type\EmailType',
+			'date' => 'snb\form\type\DateType',
 			'form' => 'snb\form\type\FormType',
 			'fieldset' => 'snb\form\type\FormType'	// Alias of form
 		));
@@ -115,7 +117,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 	/**
 	 * sets up a form using a yaml script
 	 * @param $resource - the resource name of the forms yml file
-	 * @return snb\form\type\FormType
+	 * @return \snb\form\type\FormType
 	 */
 	public function loadForm($resource)
 	{

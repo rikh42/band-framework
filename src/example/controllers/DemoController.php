@@ -12,6 +12,8 @@ use snb\http\Response;
 use snb\view\TwigView;
 use snb\form\FormBuilder;
 
+use snb\security\PasswordHash;
+
 
 
 class DemoController extends Controller
@@ -70,13 +72,7 @@ class DemoController extends Controller
 		$data = array('form' => $form->getView());
 
 		// set up the data for the view and render
-		try {
-			return $this->renderResponse('example:DemoController:form.twig', $data);
-		}
-		catch (\Exception $e)
-		{
-			return new Response($e->getMessage());
-		}
+		return $this->renderResponse('example:DemoController:form.twig', $data);
 	}
 
 

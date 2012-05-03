@@ -8,7 +8,7 @@
 
 
 namespace snb\core;
-use \snb\core\Database;
+use \snb\core\DatabaseInterface;
 
 
 //==============================

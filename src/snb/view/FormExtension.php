@@ -87,8 +87,17 @@ class FormExtension extends \Twig_Extension
 	 * @param \snb\form\FormView $data
 	 * @return string
 	 */
-	public function render($action, FormView $data)
+	public function render($action, $data)
 	{
+		// make sure we got something
+		if ($data == null)
+			return '';
+
+		// In fact, it must be a FormView...
+		if (!($data instanceof FormView))
+			return '';
+
+		// Get to work, finding a suitable block to render the Form view with
 		$blocks = $this->template->getBlocks();
 		$type = $data->get('type', 'field');
 
@@ -106,20 +115,20 @@ class FormExtension extends \Twig_Extension
 
 
 	/**
-	 * @param \snb\form\FormView $form
+	 * @param \snb\form\FormView|null $form
 	 * @return string
 	 */
-	public function renderFormRow(FormView $form)
+	public function renderFormRow($form)
 	{
 		return $this->render('row', $form);
 	}
 
 
 	/**
-	 * @param \snb\form\FormView $field
+	 * @param \snb\form\FormView|null $field
 	 * @return string
 	 */
-	public function renderFieldLabel(FormView $field)
+	public function renderFieldLabel($field)
 	{
 		return $this->render('label', $field);
 	}
@@ -127,10 +136,10 @@ class FormExtension extends \Twig_Extension
 
 
 	/**
-	 * @param \snb\form\FormView $field
+	 * @param \snb\form\FormView|null $field
 	 * @return string
 	 */
-	public function renderFieldWidgets(FormView $field)
+	public function renderFieldWidgets($field)
 	{
 		return $this->render('widget', $field);
 	}
@@ -138,10 +147,10 @@ class FormExtension extends \Twig_Extension
 
 
 	/**
-	 * @param \snb\form\FormView $form
+	 * @param \snb\form\FormView|null $form
 	 * @return string
 	 */
-	public function renderFieldErrors(FormView $form)
+	public function renderFieldErrors($form)
 	{
 		return $this->render('errors', $form);
 	}

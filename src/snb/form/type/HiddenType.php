@@ -38,4 +38,16 @@ class HiddenType extends FieldType
 	{
 		return 'hidden';
 	}
+
+
+
+	/**
+	 * Hidden fields can not be edited in the browser
+	 * @return bool
+	 */
+	public function isEditable()
+	{
+		return false;
+	}
+
 }

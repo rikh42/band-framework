@@ -1,3 +1,39 @@
+* 1.7.0 (2012-04-24)
+
+ * fixed template line number in some exceptions
+ * added an iterable test
+ * added an error when defining two blocks with the same name in a template
+ * added the preserves_safety option for filters
+ * fixed a PHP notice when trying to access a key on a non-object/array variable
+ * enhanced error reporting when the template file is an instance of SplFileInfo
+ * added Twig_Environment::mergeGlobals()
+ * added compilation checks to avoid misuses of the sandbox tag
+ * fixed filesystem loader freshness logic for high traffic websites
+ * fixed random function when charset is null
+
+* 1.6.5 (2012-04-11)
+
+ * fixed a regression when a template only extends another one without defining any blocks
+
+* 1.6.4 (2012-04-02)
+
+ * fixed PHP notice in Twig_Error::guessTemplateLine() introduced in 1.6.3
+ * fixed performance when compiling large files
+ * optimized parent template creation when the template does not use dynamic inheritance
+
+* 1.6.3 (2012-03-22)
+
+ * fixed usage of Z_ADDREF_P for PHP 5.2 in the C extension
+ * fixed compilation of numeric values used in templates when using a locale where the decimal separator is not a dot
+ * made the strategy used to guess the real template file name and line number in exception messages much faster and more accurate
+
+* 1.6.2 (2012-03-18)
+
+ * fixed sandbox mode when used with inheritance
+ * added preserveKeys support for the slice filter
+ * fixed the date filter when a DateTime instance is passed with a specific timezone
+ * added a trim filter
+
 * 1.6.1 (2012-02-29)
 
  * fixed Twig C extension

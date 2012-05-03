@@ -11,11 +11,18 @@ namespace snb\security;
 
 
 
-//==============================
-// SecurityContext
-// Some data used by the sign in manager - this really should be defined somewhere else
-// as it is specific to a region of the site.
-//==============================
+/**
+ * This class creates a context in which the security will happen.
+ * Typically this just maps to the name of the session or cookie that is used
+ * to back the security. The life setting indicates how long the tokens generated
+ * in this context will be valid for, which in turn impacts how long you can be
+ * logged in for in this context.
+ * Finally, the path setting allows you to limit the context to only parts of the site and
+ * is mainly intended to provide a way of limiting the cookie.
+ *
+ * the recommended way of using this is to create a class that extends this that
+ * sets explicit values for these settings, so you can simply go "new BackOfficeContext"
+ */
 class SecurityContext
 {
 	public $name;
@@ -23,7 +30,12 @@ class SecurityContext
 	public $path;
 
 
-	function __construct($name, $life, $path)
+	/**
+	 * @param string $name - name of the context
+	 * @param int $life - lifespan (default to 14 days)
+	 * @param string $path - path (default to / for whole site)
+	 */
+	function __construct($name='auth', $life=1209600, $path='/')
 	{
 		$this->name = $name;
 		$this->life = $life;
