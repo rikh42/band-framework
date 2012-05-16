@@ -25,6 +25,7 @@ class ServiceDefinition extends ContainerAware
 	protected $name;
 	protected $reference;		// the class name or an instance of the object
 	protected $arguments;
+	protected $isSingleton;
 	protected $calls;
 	protected $resolved;
 	public $isCreating;
@@ -43,6 +44,7 @@ class ServiceDefinition extends ContainerAware
 		$this->calls = array();
 		$this->resolved = false;
 		$this->isCreating = false;
+		$this->isSingleton = true;
 	}
 
 
@@ -66,6 +68,7 @@ class ServiceDefinition extends ContainerAware
 	}
 
 
+
 	/**
 	 * addCall
 	 * Not all objects can be set up via the constructor. Sometimes you need
@@ -81,6 +84,35 @@ class ServiceDefinition extends ContainerAware
 	{
 		$this->calls[$func] = $args;
 	}
+
+
+
+
+
+	/**
+	 * Call to indicate that this object is not a singleton
+	 * and each call to create one should create a new instance, instead
+	 * of trying to reuse the first one created.
+	 */
+	public function setMultiInstance()
+	{
+		$this->isSingleton = false;
+	}
+
+
+
+
+	/**
+	 * Indicates if this is a multi instance service, with each call create a new
+	 * and separate instance.
+	 * @return bool
+	 */
+	public function isSingleton()
+	{
+		return $this->isSingleton;
+	}
+
+
 
 
 	/**
@@ -118,10 +150,11 @@ class ServiceDefinition extends ContainerAware
 				call_user_func_array(array($service, $func), $args);
 		}
 
-		// remember this
-		$this->reference = $service;
-		return $this->reference;
+		// return the instance of the service
+		return $service;
 	}
+
+
 
 
 	/**

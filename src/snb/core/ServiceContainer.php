@@ -93,8 +93,10 @@ class ServiceContainer implements ContainerInterface
 			$object->isCreating = true;
 			$instance = $object->create($this);
 
-			// finally return it
-			$this->services[$name] = $instance;
+			// If this is a singleton then replace the ServiceDefinition with the new instance
+			if ($object->isSingleton())
+				$this->services[$name] = $instance;
+
 			$object->isCreating = false;
 			return $instance;
 		}

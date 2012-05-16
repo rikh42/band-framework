@@ -73,6 +73,29 @@ class FormType extends AbstractType
 
 
 
+	/**
+	 * Searches the form for an element of the given name.
+	 * @param $name - the name of the field element to look for
+	 * @return null|AbstractType
+	 */
+	public function findElement($name)
+	{
+		// Is it me?
+		if ($this->getName() == $name)
+			return $this;
+
+		// is it one of my children?
+		foreach ($this->children as $child)
+		{
+			$el = $child->findElement($name);
+			if ($el != null)
+				return $el;
+		}
+
+		return null;
+	}
+
+
 
 	/**
 	 * Creates the view for this class, then adds its child view to it
@@ -208,8 +231,8 @@ class FormType extends AbstractType
 		foreach ($this->children as $child)
 		{
 			$name = $child->get('name');
-			if (isset($data[$name]))
-				$child->bind($data[$name]);
+			$value = array_key_exists($name, $data) ? $data[$name] : null;
+			$child->bind($value);
 		}
 
 		// write the values back to any bound objects

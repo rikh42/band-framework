@@ -60,7 +60,10 @@ class DateType extends FieldType
 	{
 		try
 		{
-			$this->set('value', new \DateTime($data));
+			$value = null;
+			if (is_string($data) && !empty($data))
+				$value = new \DateTime($data);
+			$this->set('value', $value);
 		}
 		catch(\Exception $e)
 		{

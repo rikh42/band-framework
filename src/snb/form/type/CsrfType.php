@@ -39,4 +39,15 @@ class CsrfType extends HiddenType
 		$v= new CsrfValidator(array('token' => $this->token));
 		$this->addValidator($v);
 	}
+
+
+	protected function readFromObject($object)
+	{
+		// Does nothing, as you can't override the default values
+	}
+
+	protected function writeToObject($object)
+	{
+		// Does nothing, as we don't want the csrf token showing up in the form results
+	}
 }

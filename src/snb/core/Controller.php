@@ -16,6 +16,8 @@ use snb\core\DatabaseInterface;
 use snb\http\Request;
 use snb\logger\LoggerInterface;
 use snb\form\FormBuilder;
+use snb\security\Auth;
+
 
 //==============================
 // Controller
@@ -104,7 +106,7 @@ class Controller extends ContainerAware
 
 
 	/**
-	 * @return snb\motif\Motif
+	 * @return \snb\view\ViewInterface
 	 */
 	public function getView()
 	{
@@ -112,7 +114,7 @@ class Controller extends ContainerAware
 	}
 
 	/**
-	 * @return snb\core\DatabaseInterface
+	 * @return \snb\core\DatabaseInterface
 	 */
 	public function getDatabase()
 	{
@@ -120,7 +122,7 @@ class Controller extends ContainerAware
 	}
 
 	/**
-	 * @return snb\http\Request
+	 * @return \snb\http\Request
 	 */
 	public function getRequest()
 	{
@@ -138,7 +140,7 @@ class Controller extends ContainerAware
 
 
 	/**
-	 * @return snb\routing\RouteCollection
+	 * @return \snb\routing\RouteCollection
 	 */
 	public function getRoutes()
 	{
@@ -152,6 +154,24 @@ class Controller extends ContainerAware
 	public function getFormBuilder()
 	{
 		return $this->container->get('form.builder');
+	}
+
+
+
+	/**
+	 * @return snb\security\Auth
+	 */
+	public function getAuth()
+	{
+		return $this->container->get('auth');
+	}
+
+	/**
+	 * @return \snb\cache\CacheInterface
+	 */
+	public function getCache()
+	{
+		return $this->container->get('cache');
 	}
 
 

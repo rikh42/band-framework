@@ -77,6 +77,21 @@ class PasswordHash
 	}
 
 
+
+	/**
+	 * Returns a token that contains a smaller set of characters
+	 * from our normal random algo. However, the tokens have fewer
+	 * parsing issues and are simpler to use in some cases.
+	 * @param $length
+	 * @return string
+	 */
+	public function generateSimpleToken($length)
+	{
+		$key = '0123456789abcdefghijklmnopqrstuvwxyz';
+		return $this->generateRandomCharacters($key, $length);
+	}
+
+
 	//==============================
 	// generateBlowFishSalt
 	// Generates a valid Blowfish salt string.
@@ -110,6 +125,19 @@ class PasswordHash
 		// This is the subset of characters to generate the salt with
 		// This is all the characters allowed by the Blowfish algo that we use.
 		$key = './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		return $this->generateRandomCharacters($key, $length);
+	}
+
+
+	/**
+	 * Produce a list of random characters, using the character set given
+	 * @param $key
+	 * @param $length
+	 * @return string
+	 */
+	protected function generateRandomCharacters($key, $length)
+	{
+		// Get the length of the character set
 		$keyLen = strlen($key);
 		$salt = '';
 

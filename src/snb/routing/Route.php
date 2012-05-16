@@ -58,10 +58,43 @@ class Route
 	 */
 	public function getMethod()
 	{
-		if (!isset($this->options['method']))
-			return false;
+		return $this->getOption('method', 'GET|POST|PUT|DELETE|HEAD');
+	}
 
-		return $this->options['method'];
+
+	/**
+	 * @return string - the name of the route
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+
+	/**
+	 * returns the protocols that this routes is valid for
+	 * @return string
+	 */
+	public function getProtocol()
+	{
+		return $this->getOption('protocol', 'http|https');
+	}
+
+
+
+	/**
+	 * Returns the named option of the route
+	 * @param $name - the name of the option we want to get
+	 * @param null $default
+	 * @return mixed
+	 */
+	public function getOption($name, $default=null)
+	{
+		// Check that the option exists
+		if (array_key_exists($name, $this->options))
+			return $this->options[$name];
+
+		return $default;
 	}
 
 
@@ -70,7 +103,7 @@ class Route
 	 * isMatch
 	 * Trys to match the url of the request to this route
 	 * @param string $path - the is the urldecoded path in the url
-	 * @param Request $request
+	 * @param \snb\http\Request $request
 	 * @return bool
 	 */
 	public function isMatch($path, Request $request)
@@ -85,13 +118,18 @@ class Route
 		// OK, this URL is a good one
 		// Check that the request method matches the route
 		$method = $this->getMethod();
-		if ($method)
+		$m = explode('|', mb_strtoupper($method));
+		if (!in_array($request->getMethod(), $m))
 		{
-			$m = explode('|', mb_strtoupper($method));
-			if (!in_array($request->getMethod(), $m))
-			{
-				return false;
-			}
+			return false;
+		}
+
+		// Something similar for the protocol
+		$protocol = $this->getProtocol();
+		$p = explode('|', mb_strtolower($protocol));
+		if (!in_array($request->getProtocol(), $p))
+		{
+			return false;
 		}
 
 		// It is, so prepare the variables and create the controller
@@ -133,7 +171,7 @@ class Route
 	 * Updates the controller class name and action name from the
 	 * colon separated text from the yml file
 	 */
-	public function refreshControllerInfo()
+	protected function refreshControllerInfo()
 	{
 		if ($this->controllerClass==null)
 		{

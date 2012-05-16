@@ -231,7 +231,7 @@ class AbstractType
 
 		// default the value to be the current value
 		$value = $this->readProperty($object, $property, $this->get('value'));
-		$this->set('value', $value);
+		$this->set('value', $this->filter($value, true));
 	}
 
 
@@ -244,7 +244,29 @@ class AbstractType
 	{
 		// Find the name of the property we need to look for
 		$property = $this->getObjectBinding();
-		$this->writeProperty($object, $property, $this->get('value'));
+		$value = $this->filter($this->get('value'), false);
+		$this->writeProperty($object, $property, $value);
+	}
+
+
+
+	/**
+	 * @param $value - the value to filter
+	 * @param bool $in - true when filtering into the form, false for out of the form
+	 * @return mixed - the filtered value
+	 */
+	protected function filter($value, $in = true)
+	{
+		// If there is no filter, just pass the value through
+		$filter = $this->get('filter', null);
+		if ($filter == null)
+			return $value;
+
+		// Decide if we are filtering in or out of the form
+		if ($in)
+			return $filter->in($value);
+		else
+			return $filter->out($value);
 	}
 
 
@@ -278,6 +300,23 @@ class AbstractType
 	{
 		return $this->get('name');
 	}
+
+
+
+	/**
+	 * Searches the form for an element of the given name.
+	 * @param $name - the name of the field element to look for
+	 * @return null|AbstractType
+	 */
+	public function findElement($name)
+	{
+		// Is it me?
+		if ($this->getName() == $name)
+			return $this;
+
+		return null;
+	}
+
 
 
 	/**

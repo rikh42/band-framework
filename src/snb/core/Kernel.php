@@ -152,6 +152,9 @@ class Kernel extends ContainerAware implements KernelInterface
 		$this->addService('twig.extension.routing', 'snb\view\RouteExtension')->setArguments(array('::service::routes'));
 		$this->addService('twig.extension.forms', 'snb\view\FormExtension')->setArguments(array('::service::config'));
 		$this->addService('db.migrate', 'snb\core\Migrate')->setArguments(array('::service::database', '::service::logger'))->addCall('ensureMigrationTable');
+		$this->addService('cache', 'snb\cache\NullCache');
+		//$this->addService('email', 'snb\email\PostmarkApp')->setArguments(array('::service::config', '::service::logger'))->setMultiInstance();
+		$this->addService('email', 'snb\email\NullEmail')->setMultiInstance();
 
 		// Register some app specific services
 		$this->registerServices();

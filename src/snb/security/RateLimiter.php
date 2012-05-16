@@ -7,8 +7,10 @@
  */
 
 
-namespace snb\core;
-use \snb\core\DatabaseInterface;
+namespace snb\security;
+use snb\cache\CacheInterface;
+
+
 
 
 //==============================
@@ -22,6 +24,7 @@ class RateLimiter
 	protected $maxRequests;
 	protected $key;
 	protected $expire;
+	protected $cache;
 
 
 
@@ -30,7 +33,7 @@ class RateLimiter
 	// goes and increments the counter in memcached and sets
 	// a flag once the rate limit has been exceeded
 	//==============================
-	public function __construct($key, $maxRequests=20, $minutes=5, $autoIncrement=true)
+	public function __construct(CacheInterface $cache, $key, $maxRequests=20, $minutes=5, $autoIncrement=true)
 	{
 		// snap the max requests value into a reasonable range
 		$maxRequests = (int) $maxRequests;
@@ -38,22 +41,28 @@ class RateLimiter
 			$maxRequests = 1;
 
 		// snap the minutes into a reasonable range
+		// 1 minutes, up to about 1 day
 		$minutes = (int) $minutes;
-		if ($minutes>300)
-			$minutes = 300;
+		if ($minutes>1400)
+			$minutes = 1400;
 		elseif ($minutes<1)
 			$minutes = 1;
 
 		// decide when the rate limit will expire (in seconds).
 		// this is based on the time delay request, with a random jitter added
-		// to make it harder to predict when the key will expire
+		// to make it harder to predict when the key will expire (+-3% variation)
 		// (so it's harder to target requests for the moment the key expires)
-		$this->expire = $minutes * 60 + mt_rand(-17, 17);
+		$this->expire = $minutes * 60;
+		$jitter = (int)($this->expire * 0.03);
+		$this->expire += mt_rand(-$jitter, $jitter);
 
 		// store the data we need in the object
 		$this->key = $key;
 		$this->maxRequests = $maxRequests;
 		$this->requests = 0;
+
+		// Remember the cache instance to use
+		$this->cache = $cache;
 
 		// increment if needed
 		if ($autoIncrement)
@@ -69,14 +78,13 @@ class RateLimiter
 	public function increment()
 	{
 		// finally, add and increment the count in the cache
-		$db = Database::getInstance();
-		$requests = $db->incrementCache('rate limit :: '.$this->key, $this->expire);
+		$requests = $this->cache->increment('rate limit :: '.$this->key, $this->expire);
 
 		// have we go over the rate limit?
 		if ($requests > $this->maxRequests)
 		{
 			// Yep, we have hit our limit, so record the fact that we exceeded the cap
-			$db->incrementCache('capped rate limit :: '.$this->key, $this->expire);
+			$this->cache->increment('capped rate limit :: '.$this->key, $this->expire);
 		}
 	}
 
@@ -91,8 +99,7 @@ class RateLimiter
 	public function capped()
 	{
 		// find out if we are capped (the key will exist if we are capped, won't exist if we are not capped)
-		$db = Database::getInstance();
-		$capped = $db->getCache('capped rate limit :: '.$this->key);
+		$capped = $this->cache->get('capped rate limit :: '.$this->key);
 		return ($capped != null);
 	}
 

@@ -49,9 +49,11 @@ class NullCache implements CacheInterface
 
 	/**
 	 * @param $key
-	 * @param int $expire
+	 * @param int $amount
+	 * @return int
 	 */
 	public function increment($key, $amount=1)
 	{
+		return 0;
 	}
 }

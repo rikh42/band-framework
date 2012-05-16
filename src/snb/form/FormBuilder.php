@@ -27,6 +27,7 @@ use Symfony\Component\Yaml\Yaml;
 class FormBuilder extends ContainerAware implements FormBuilderInterface
 {
 	protected $extensions;
+	protected $filters;
 	protected $formElements;
 
 
@@ -34,6 +35,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 	{
 		// remember these - we'll need them later.
 		$this->extensions = array();
+		$this->filters = array();
 		$this->formElements = array();
 
 		// Add the core extensions
@@ -50,6 +52,12 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 			'form' => 'snb\form\type\FormType',
 			'fieldset' => 'snb\form\type\FormType'	// Alias of form
 		));
+
+		// Add the core filters
+		$this->addFilters(array(
+			'nop' => 'snb\form\filters\NoOpFilter',
+			'date' => 'snb\form\filters\DateFilter'
+		));
 	}
 
 
@@ -63,6 +71,16 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 		$this->extensions = array_merge($this->extensions, $extensions);
 	}
 
+
+	/**
+	 * Add a list of filter classes to the form builder
+	 * @param array $filters
+	 */
+	public function addFilters(array $filters)
+	{
+		// Add the filters to the system
+		$this->filters = array_merge($this->filters, $filters);
+	}
 
 
 	/**
@@ -83,7 +101,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 		}
 
 		// add it to the list
-		$this->formElements[] = $element;
+		$this->formElements[$name] = $element;
 	}
 
 
@@ -184,7 +202,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 	 * @param array $element
 	 * @return \snb\form\type\FormType - or another field type
 	 */
-	public function loadFormElement($defaultName, array $element)
+	protected function loadFormElement($defaultName, array $element)
 	{
 		// get the field type
 		$type = isset($element['type']) ? $element['type'] : 'text';
@@ -235,6 +253,20 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 					}
 					break;
 
+				case 'filter':
+					// See if we know about the filter type (if not, just log and ignore)
+					if (array_key_exists($value, $this->filters))
+					{
+						$filterClass = $this->filters[$value];
+						$form->set($key, new $filterClass);
+					}
+					else
+					{
+						$this->container->get('logger')->warning('Found unknown filter type in form definition. Ignored.', $value);
+					}
+					break;
+
+
 				// everything else just add as a property of the element
 				default:
 					$form->set($key, $value);
@@ -252,7 +284,7 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
 	 * @param string $name - the name of the validator class
 	 * @return string
 	 */
-	public function getValidatorClass($name)
+	protected function getValidatorClass($name)
 	{
 		if (strpos($name, '\\')===false)
 		{

@@ -321,7 +321,7 @@ class Request
 	public function getPath()
 	{
 		// Chop off the get params if there are any
-		$uri = $this->server->get('REQUEST_URI');
+		$uri = $this->getUri();
 		$pos = strpos($uri, '?');
 		if ($pos !== false)
 		{
@@ -329,6 +329,19 @@ class Request
 		}
 
 		return $uri;
+	}
+
+
+
+	/**
+	 * Gets the URI of the current request
+	 * eg, if the browser views http://example.com/cms/edit/34?x=3
+	 * then this function will return /cms/edit/34?x=3
+	 * @return string
+	 */
+	public function getUri()
+	{
+		return $this->server->get('REQUEST_URI');
 	}
 
 
