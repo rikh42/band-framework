@@ -18,14 +18,8 @@ use snb\logger\LoggerInterface;
  */
 class Model extends ContainerAware
 {
-	/**
-	 * Called by the container when it creates Models
-	 * This is the recommended place to perform you construction
-	 * in all models.
-	 */
-	public function init()
+	public function __construct()
 	{
-
 	}
 
 

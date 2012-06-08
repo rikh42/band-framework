@@ -75,9 +75,43 @@ class FormExtension extends \Twig_Extension
 			'form_row'  => new \Twig_Function_Method($this, 'renderFormRow', array('is_safe' => array('html'))),
 			'form_label'  => new \Twig_Function_Method($this, 'renderFieldLabel', array('is_safe' => array('html'))),
 			'form_widget'  => new \Twig_Function_Method($this, 'renderFieldWidgets', array('is_safe' => array('html'))),
-			'form_errors'  => new \Twig_Function_Method($this, 'renderFieldErrors', array('is_safe' => array('html')))
+			'form_errors'  => new \Twig_Function_Method($this, 'renderFieldErrors', array('is_safe' => array('html'))),
+			'isChoiceSelected'  => new \Twig_Function_Method($this, 'isChoiceSelected', array('is_safe' => array('html')))
 		);
 	}
+
+
+
+
+	/**
+	 * Determines if a given choice should be selected for not.
+	 * This is complicated, as twigs "in" method will treat numbers as strings, and look
+	 * for substrings. This deals multi-select etc where value might be an array of values etc.
+	 * @param $option
+	 * @param $value
+	 * @return bool
+	 */
+	public function isChoiceSelected($option, $value)
+	{
+		// If they are the same, we are done
+		if ($option == $value)
+			return true;
+
+		// if value is an array of selected options, we need to see if the option is in the array
+		if (is_array($value))
+		{
+			foreach ($value as $item)
+			{
+				if ($option == $item)
+					return true;
+			}
+		}
+
+		// Failed to find a valid choice
+		return false;
+	}
+
+
 
 
 	/**

@@ -161,7 +161,7 @@ class RequestParams
 	public function getAlpha($name, $default='')
 	{
 		// basically, strip everything that isn't a letter from the string
-		return preg_replace('/[^[:alpha:]]/', '', $this->get($name, $default));
+		return preg_replace('/[^[:alpha:]]/u', '', $this->get($name, $default));
 	}
 
 
@@ -172,7 +172,7 @@ class RequestParams
 	//==============================
 	public function getAlphaNum($name, $default='')
 	{
-		return preg_replace('/[^[:alnum:]]/', '', $this->get($name, $default));
+		return preg_replace('/[^[:alnum:]]/u', '', $this->get($name, $default));
 	}
 
 
@@ -182,7 +182,7 @@ class RequestParams
 	//==============================
 	public function getDigits($name, $default='')
 	{
-		return preg_replace('/[^[:digit:]]/', '', $this->get($name, $default));
+		return preg_replace('/[^[:digit:]]/u', '', $this->get($name, $default));
 	}
 
 

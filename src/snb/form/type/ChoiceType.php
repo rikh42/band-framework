@@ -63,6 +63,11 @@ class ChoiceType extends FieldType
 			$data = array_values($data);
 		}
 
+		// If nothing is selected, then we can end up with a null input here
+		// change it to an empty array for consistency
+		if ($data == null)
+			$data = array();
+
 		// finally, set the value like normal
 		parent::bind($data);
 	}

@@ -163,23 +163,43 @@ class PasswordHash
 	//==============================
 	protected function getRandomValues($count, $range)
 	{
-		// generate some random values
-		$randState = rand() . microtime() . mt_rand();
-
-		// build a binary string
 		$bytes = '';
-		for ($i = 0; $i < $count; $i += 16)
+
+		// try and read from /dev/urandom first
+		// it's slow, but very random.
+		// We don't use /dev/random, as that can block until
+		// more randomness turns on the system.
+		if (is_readable('/dev/urandom'))
 		{
-			$randState  = md5(mt_rand() . microtime() . $randState);
-			$bytes .= md5($randState, true);
+			$randHand = @fopen('/dev/urandom', 'rb');
+			if ($randHand)
+			{
+				$bytes = fread($randHand, $count);
+				fclose($randHand);
+			}
 		}
-		$bytes = substr($bytes, 0, $count);
+
+		// See if we got any random bytes from that...
+		if (strlen($bytes) < $count)
+		{
+			// generate some random values
+			$randState = rand() . microtime() . mt_rand();
+
+			// build a binary string
+			for ($i = 0; $i < $count; $i += 16)
+			{
+				$randState  = md5(mt_rand() . microtime() . $randState);
+				$bytes .= md5($randState, true);
+			}
+			$bytes = substr($bytes, 0, $count);
+		}
 
 		// now create an array of value
 		$rnd = array();
 		for ($i = 0; $i < $count; $i++)
 		{
-			$rnd[] = ord($bytes[$i]) % $range;
+			// Don't use mod, as that will distort the randomness
+			$rnd[] = (int) (ord($bytes[$i]) / 255 * $range);
 		}
 
 		return $rnd;

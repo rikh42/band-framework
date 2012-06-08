@@ -108,9 +108,9 @@ class AbstractValidator implements ValidatorInterface
 		// replace all the named values in the string
 		foreach($args as $key=>$value)
 		{
-			$replace = '/\{\{\s*'.preg_quote($key).'\s*\}\}/i';
+			$replace = '{{'.$key.'}}';
 			$value = is_object($value) ? 'object' : is_array($value) ? 'array' : (string)$value;
-			$msg = preg_replace($replace, $value, $msg);
+			$msg = str_replace($replace, $value, $msg);
 		}
 
 		return $msg;

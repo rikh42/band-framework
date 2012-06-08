@@ -23,13 +23,11 @@ use snb\exceptions\CircularReferenceException;
 class ServiceContainer implements ContainerInterface
 {
 	protected $services;
-	protected $models;
 
 
 	public function __construct()
 	{
 		$this->services = array();
-		$this->models = array();
 	}
 
 
@@ -144,52 +142,4 @@ class ServiceContainer implements ContainerInterface
 		return $this->get($name);
 	}
 
-
-
-	/**
-	 * Sets a model name into the container
-	 * @param $name
-	 * @param $ref
-	 */
-	public function setModel($name, $ref)
-	{
-		$this->models[$name] = $ref;
-	}
-
-
-	/**
-	 * Creates an instance of a model
-	 * @param string $name - the name of the model to create
-	 * @return null
-	 */
-	public function createModel($name)
-	{
-		// Check the model exists, and if not, fail
-		if (array_key_exists($name, $this->models))
-		{
-			// Use the class name in the container
-			$modelClass = $this->models[$name];
-		}
-		else
-		{
-			// if the name looks like a class name, assume it is
-			if (mb_strpos($name, '\\') === false)
-				return null;
-
-			// treat this as the class name
-			$modelClass = $name;
-		}
-
-		// create the model
-		$model = new $modelClass;
-		if ($model instanceof ContainerAware)
-			$model->setContainer($this);
-
-		// Call init, if it exists.
-		$r = new \ReflectionClass($model);
-		if ($r->hasMethod('init'))
-			$model->init();
-
-		return $model;
-	}
 }

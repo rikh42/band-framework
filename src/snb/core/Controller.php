@@ -176,16 +176,6 @@ class Controller extends ContainerAware
 
 
 	/**
-	 * @param string $name - the name of the model to create
-	 */
-	public function createModel($name)
-	{
-		return $this->container->createModel($name);
-	}
-
-
-
-	/**
 	 * get
 	 * Allows services to be accessed without having to use the container
 	 * eg, use $this->get('database'), instead of $this->container->get('database');

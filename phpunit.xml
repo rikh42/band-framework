@@ -7,6 +7,7 @@
 	<testsuites>
 		<testsuite name="Framework">
 			<file>/band/src/snb/tests/RouteTest.php</file>
+            <file>/band/src/snb/tests/RequestTest.php</file>
 		</testsuite>
 	</testsuites>
 

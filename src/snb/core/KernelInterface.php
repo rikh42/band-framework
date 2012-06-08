@@ -24,4 +24,5 @@ interface KernelInterface
 	 * @return ServiceDefinition
 	 */
 	public function addService($name, $ref);
+	public function addModel($name, $ref);
 }

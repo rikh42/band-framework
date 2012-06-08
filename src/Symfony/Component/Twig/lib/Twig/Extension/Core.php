@@ -48,7 +48,7 @@ class Twig_Extension_Core extends Twig_Extension
     /**
      * Sets the default timezone to be used by the date filter.
      *
-     * @param DateTimeZone|string $timezone  The default timezone string or a DateTimeZone object
+     * @param DateTimeZone|string $timezone The default timezone string or a DateTimeZone object
      */
     public function setTimezone($timezone)
     {
@@ -68,9 +68,9 @@ class Twig_Extension_Core extends Twig_Extension
     /**
      * Sets the default format to be used by the number_format filter.
      *
-     * @param integer $decimal The number of decimal places to use.
-     * @param string $decimalPoint The character(s) to use for the decimal point.
-     * @param string $thousandSep The character(s) to use for the thousands separator.
+     * @param integer $decimal      The number of decimal places to use.
+     * @param string  $decimalPoint The character(s) to use for the decimal point.
+     * @param string  $thousandSep  The character(s) to use for the thousands separator.
      */
     public function setNumberFormat($decimal, $decimalPoint, $thousandSep)
     {
@@ -109,6 +109,7 @@ class Twig_Extension_Core extends Twig_Extension
             new Twig_TokenParser_Spaceless(),
             new Twig_TokenParser_Flush(),
             new Twig_TokenParser_Do(),
+            new Twig_TokenParser_Embed(),
         );
     }
 
@@ -125,6 +126,7 @@ class Twig_Extension_Core extends Twig_Extension
             'format'        => new Twig_Filter_Function('sprintf'),
             'replace'       => new Twig_Filter_Function('strtr'),
             'number_format' => new Twig_Filter_Function('twig_number_format_filter', array('needs_environment' => true)),
+            'abs'           => new Twig_Filter_Function('abs'),
 
             // encoding
             'url_encode'       => new Twig_Filter_Function('twig_urlencode_filter'),
@@ -387,6 +389,7 @@ function twig_date_format_filter(Twig_Environment $env, $date, $format = null, $
 
     if ($date instanceof DateInterval || $date instanceof DateTime) {
         if (null !== $timezone) {
+            $date = clone $date;
             $date->setTimezone($timezone instanceof DateTimeZone ? $timezone : new DateTimeZone($timezone));
         }
 
@@ -413,28 +416,29 @@ function twig_date_format_filter(Twig_Environment $env, $date, $format = null, $
  */
 function twig_date_converter(Twig_Environment $env, $date = null, $timezone = null)
 {
-    if ($date instanceof DateTime) {
-        return $date;
-    }
+    if (!$date instanceof DateTime) {
+        $asString = (string) $date;
 
-    $asString = (string) $date;
-
-    if (ctype_digit($asString) || (!empty($asString) && '-' === $asString[0] && ctype_digit(substr($asString, 1)))) {
-        $date = new DateTime('@'.$date);
-        $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        if (ctype_digit($asString) || (!empty($asString) && '-' === $asString[0] && ctype_digit(substr($asString, 1)))) {
+            $date = new DateTime('@'.$date);
+        } else {
+            $date = new DateTime($date);
+        }
     } else {
-        $date = new DateTime($date);
+        $date = clone $date;
     }
 
     // set Timezone
     if (null !== $timezone) {
-        if (!$timezone instanceof DateTimeZone) {
-            $timezone = new DateTimeZone($timezone);
+        if ($timezone instanceof DateTimeZone) {
+            $date->setTimezone($timezone);
+        } else {
+            $date->setTimezone(new DateTimeZone($timezone));
         }
-
-        $date->setTimezone($timezone);
     } elseif (($timezone = $env->getExtension('core')->getTimezone()) instanceof DateTimeZone) {
         $date->setTimezone($timezone);
+    } else {
+        $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
     }
 
     return $date;
@@ -734,11 +738,11 @@ function twig_in_filter($value, $compare)
  *
  * @param Twig_Environment $env        A Twig_Environment instance
  * @param string           $string     The value to be escaped
- * @param string           $type       The escaping strategy
+ * @param string           $strategy   The escaping strategy
  * @param string           $charset    The charset
  * @param Boolean          $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
  */
-function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $charset = null, $autoescape = false)
+function twig_escape_filter(Twig_Environment $env, $string, $strategy = 'html', $charset = null, $autoescape = false)
 {
     if ($autoescape && is_object($string) && $string instanceof Twig_Markup) {
         return $string;
@@ -754,7 +758,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $cha
 
     $string = (string) $string;
 
-    switch ($type) {
+    switch ($strategy) {
         case 'js':
             // escape all non-alphanumeric characters
             // into their \xHH or \uHHHH representations
@@ -777,7 +781,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $cha
 
             // Using a static variable to avoid initializing the array
             // each time the function is called. Moving the declaration on the
-            // top of the function slow downs other escaping types.
+            // top of the function slow downs other escaping strategies.
             static $htmlspecialcharsCharsets = array(
                 'iso-8859-1' => true, 'iso8859-1' => true,
                 'iso-8859-15' => true, 'iso8859-15' => true,
@@ -805,7 +809,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $cha
             return twig_convert_encoding($string, $charset, 'UTF-8');
 
         default:
-            throw new Twig_Error_Runtime(sprintf('Invalid escape type "%s".', $type));
+            throw new Twig_Error_Runtime(sprintf('Invalid escaping strategy "%s" (valid ones: html, js).', $strategy));
     }
 }
 
@@ -823,15 +827,15 @@ function twig_escape_filter_is_safe(Twig_Node $filterArgs)
     return array('html');
 }
 
-if (function_exists('iconv')) {
-    function twig_convert_encoding($string, $to, $from)
-    {
-        return iconv($from, $to, $string);
-    }
-} elseif (function_exists('mb_convert_encoding')) {
+if (function_exists('mb_convert_encoding')) {
     function twig_convert_encoding($string, $to, $from)
     {
         return mb_convert_encoding($string, $to, $from);
+    }
+} elseif (function_exists('iconv')) {
+    function twig_convert_encoding($string, $to, $from)
+    {
+        return iconv($from, $to, $string);
     }
 } else {
     function twig_convert_encoding($string, $to, $from)

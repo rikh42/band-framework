@@ -145,6 +145,14 @@ class Request
 			$components['path'] = '';
 		}
 
+		// make sure all the parameters are text
+		$stringParams = array();
+		foreach($parameters as $key=>$value)
+		{
+			$stringParams[$key] = (string)$value;
+		}
+		$parameters = $stringParams;
+
 		if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE'))) {
 			$request = $parameters;
 			$query = array();
@@ -166,7 +174,9 @@ class Request
 			$query = array_replace($qs, $query);
 		}
 
-		$uri = $components['path'].($queryString ? '?'.$queryString : '');
+		$uri = $components['path'];
+		if (!empty($query))
+			$uri .= '?'.http_build_query($query);
 
 		$server = array_replace($defaults, $server, array(
 			'REQUEST_METHOD'       => strtoupper($method),

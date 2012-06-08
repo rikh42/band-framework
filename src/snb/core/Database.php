@@ -65,13 +65,20 @@ class Database extends ContainerAware implements DatabaseInterface
 	}
 
 
+
+	/**
+	 * Called by the service container on construction
+	 * sets up a single DB connection, called "read".
+	 */
 	public function init()
 	{
 		$this->logger = $this->container->get('logger');
 		$this->addConnection('read');
-		$this->addConnection('write');
 		$this->setActiveConnection('read');
 	}
+
+
+
 
 	//=====================================
 	// addConnection
@@ -209,7 +216,8 @@ class Database extends ContainerAware implements DatabaseInterface
 
 		// We need to find all the items in the query that look like potential binds
 		// query is in the form 'select sql blar x = :varname, y=:otherName'
-		if (preg_match_all('/:[a-z]+/iu', $query, $toBind)===false)
+		// valid characters are a-z A-Z 0-9 and _ (from the PDO source, as it isn't in the docs)
+		if (preg_match_all('/:[a-z0-9_]+/iu', $query, $toBind)===false)
 			return;
 
 		// This list of bound variable names in the query can now be found in $toBind[0]...
@@ -218,7 +226,7 @@ class Database extends ContainerAware implements DatabaseInterface
 		foreach($params as $key=>$value)
 		{
 			// check each parameter and bind any that appear valid
-			if (preg_match('/^([a-z]+)(:[a-z]+)$/iu', $key, $regs))
+			if (preg_match('/^([a-z]+)(:[a-z0-9_]+)$/iu', $key, $regs))
 			{
 				// Check that this var is in the list of items needing to be bound
 				if (!in_array($regs[2], $toBind[0]))
@@ -248,7 +256,7 @@ class Database extends ContainerAware implements DatabaseInterface
 				// bind the value to the statement
 				$statement->bindValue($regs[2], $value, $type);
 			}
-			else if (preg_match('/^([a-z]+)$/iu', $key))
+			else if (preg_match('/^([a-z0-9_]+)$/iu', $key))
 			{
 				// Check that key (eg iUser) is in the binding list (eg :iUser)
 				if (!in_array(':'.$key, $toBind[0]))

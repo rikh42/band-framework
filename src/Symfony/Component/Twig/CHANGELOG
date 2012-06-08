@@ -1,5 +1,28 @@
+* 1.8.2 (2012-05-30)
+
+ * added the abs filter
+ * fixed a regression when using a number in template attributes
+ * fixed compiler when mbstring.func_overload is set to 2
+ * fixed DateTimeZone support in date filter
+
+* 1.8.1 (2012-05-17)
+
+ * fixed a regression when dealing with SimpleXMLElement instances in templates
+ * fixed "is_safe" value for the "dump" function when "html_errors" is not defined in php.ini
+ * switched to use mbstring whenever possible instead of iconv
+
+* 1.8.0 (2012-05-08)
+
+ * enforced interface when adding tests, filters, functions, and node visitors from extensions
+ * fixed a side-effect of the date filter where the timezone might be changed
+ * simplified usage of the autoescape tag; the only (optional) argument is now the escaping strategy or false (with a BC layer)
+ * added a way to dynamically change the auto-escaping strategy according to the template "filename"
+ * changed the autoescape option to also accept a supported escaping strategy (for BC, true is equivalent to html)
+ * added an embed tag
+
 * 1.7.0 (2012-04-24)
 
+ * fixed a PHP warning when using CIFS
  * fixed template line number in some exceptions
  * added an iterable test
  * added an error when defining two blocks with the same name in a template

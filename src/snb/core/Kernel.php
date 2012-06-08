@@ -205,13 +205,22 @@ class Kernel extends ContainerAware implements KernelInterface
 
 
 	/**
-	 * Adds a model
-	 * @param array $models - an array of name to classnames
+	 * Adds a model - basically the same as addService, only with a call to setMultiInstance()
+	 * built in for good measure.
+	 * @param $name - name of the model (lower case and dots)
+	 * @param $ref - the name of the class to use for this model
+	 * @return ServiceDefinition
 	 */
-	public function addModels(array $models)
+	public function addModel($name, $ref)
 	{
-		foreach ($models as $name=>$class)
-			$this->container->setModel($name, $class);
+		// same as addService
+		$modelDef = $this->addService($name, $ref);
+
+		// Only we say we are not a singleton
+		$modelDef->setMultiInstance();
+
+		// return the model definition for chaining
+		return $modelDef;
 	}
 
 
