@@ -10,26 +10,23 @@
  *
  */
 
-
 namespace snb\form\type;
 
 use snb\form\type\AbstractType;
-
-
 
 /**
  * A generic form field
  */
 class FieldType extends AbstractType
 {
-	/**
-	 * Gets the html type of the field
-	 * @return string
-	 */
-	public function getType()
-	{
-		// This is a generic field, so render it as text
-		return 'text';
-	}
+    /**
+     * Gets the html type of the field
+     * @return string
+     */
+    public function getType()
+    {
+        // This is a generic field, so render it as text
+        return 'text';
+    }
 
 }

@@ -6,23 +6,22 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
 use \snb\http\Request;
 
-
 interface KernelInterface
 {
-	public function boot();
-	public function getPackagePath($name);
-	public function findResource($name, $type);
-	public function handle(Request $request);
+    public function boot();
+    public function getPackagePath($name);
+    public function findResource($name, $type);
+    public function handle(Request $request);
 
-	/**
-	 * @param string $name - the name of the service to add
-	 * @param $ref - it's classname or an instance of the service
-	 * @return ServiceDefinition
-	 */
-	public function addService($name, $ref);
-	public function addModel($name, $ref);
+    /**
+     * @param string $name - the name of the service to add
+     * @param $ref - it's classname or an instance of the service
+     * @return ServiceDefinition
+     */
+    public function addService($name, $ref);
+    public function addModel($name, $ref);
+    public function getContainer();
 }

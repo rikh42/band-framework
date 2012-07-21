@@ -10,20 +10,17 @@
  *
  */
 
-
-
 namespace snb\form\type;
 use snb\form\type\TextType;
 
-
 class EmailType extends TextType
 {
-	/**
-	 * Gets the html type of the field
-	 * @return string
-	 */
-	public function getType()
-	{
-		return 'email';
-	}
+    /**
+     * Gets the html type of the field
+     * @return string
+     */
+    public function getType()
+    {
+        return 'email';
+    }
 }

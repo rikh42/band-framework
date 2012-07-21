@@ -10,20 +10,17 @@
  *
  */
 
-
-
 namespace snb\form\type;
 use snb\form\type\FieldType;
 
-
 class TextAreaType extends FieldType
 {
-	/**
-	 * Gets the html type of the field
-	 * @return string
-	 */
-	public function getType()
-	{
-		return 'textarea';
-	}
+    /**
+     * Gets the html type of the field
+     * @return string
+     */
+    public function getType()
+    {
+        return 'textarea';
+    }
 }

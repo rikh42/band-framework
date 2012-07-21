@@ -6,13 +6,11 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\logger;
-
-
 
 interface HandlerInterface
 {
-	function handle(array $record);
-	function dump();
+    public function handle(array $record);
+    public function get();
+    public function getHtml();
 }

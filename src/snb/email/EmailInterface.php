@@ -6,20 +6,20 @@
  * with this package in the file LICENSE.txt.
  */
 
-
 namespace snb\email;
-
 
 interface EmailInterface
 {
-	function subject($subject);
-	function to($email, $name=null);
-	function cc($email, $name=null);
-	function bcc($email, $name=null);
-	function from($email, $name=null);
-	function htmlBody($html);
-	function textBody($plain);
-	function tag($tag);
-	function send();
-}
+    public function subject($subject);
+    public function to($email, $name=null);
+    public function cc($email, $name=null);
+    public function bcc($email, $name=null);
+    public function from($email, $name=null);
+    public function htmlBody($html);
+    public function textBody($plain);
+    public function tag($tag);
+    public function send();
 
+    public function getHtmlBody();
+    public function getTextBody();
+}

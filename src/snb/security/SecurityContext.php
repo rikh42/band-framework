@@ -6,10 +6,7 @@
  * with this package in the file LICENSE.txt.
  */
 
-
 namespace snb\security;
-
-
 
 /**
  * This class creates a context in which the security will happen.
@@ -25,21 +22,19 @@ namespace snb\security;
  */
 class SecurityContext
 {
-	public $name;
-	public $life;
-	public $path;
+    public $name;
+    public $life;
+    public $path;
 
-
-	/**
-	 * @param string $name - name of the context
-	 * @param int $life - lifespan (default to 14 days)
-	 * @param string $path - path (default to / for whole site)
-	 */
-	function __construct($name='auth', $life=1209600, $path='/')
-	{
-		$this->name = $name;
-		$this->life = $life;
-		$this->path = $path;
-	}
+    /**
+     * @param string $name - name of the context
+     * @param int    $life - lifespan (default to 14 days)
+     * @param string $path - path (default to / for whole site)
+     */
+    public function __construct($name='auth', $life=1209600, $path='/')
+    {
+        $this->name = $name;
+        $this->life = $life;
+        $this->path = $path;
+    }
 }
-

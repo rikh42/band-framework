@@ -6,11 +6,8 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
 use \PDO;
-
-
 
 //=====================================
 // ConnectionInfo
@@ -18,66 +15,64 @@ use \PDO;
 //=====================================
 class ConnectionInfo
 {
-	protected $host = '';
-	protected $port = '';
-	protected $user = '';
-	protected $password = '';
-	protected $database = '';
-	protected $pdo = null;
+    protected $host = '';
+    protected $port = '';
+    protected $user = '';
+    protected $password = '';
+    protected $database = '';
+    protected $pdo = null;
 
-	public function __construct($host, $port, $user, $password, $database)
-	{
-		$this->host = $host;
-		$this->port = $port;
-		$this->user = $user;
-		$this->password = $password;
-		$this->database = $database;
-	}
+    public function __construct($host, $port, $user, $password, $database)
+    {
+        $this->host = $host;
+        $this->port = $port;
+        $this->user = $user;
+        $this->password = $password;
+        $this->database = $database;
+    }
 
-	public function setServer($host, $port)
-	{
-		$this->host = $host;
-		$this->port = $port;
-		$this->pdo = null;
-	}
+    public function setServer($host, $port)
+    {
+        $this->host = $host;
+        $this->port = $port;
+        $this->pdo = null;
+    }
 
-	public  function setUser($user, $password)
-	{
-		$this->user = $user;
-		$this->password = $password;
-		$this->pdo = null;
-	}
+    public function setUser($user, $password)
+    {
+        $this->user = $user;
+        $this->password = $password;
+        $this->pdo = null;
+    }
 
-	public function setDatabase($database)
-	{
-		$this->database = $database;
-		$this->pdo = null;
-	}
+    public function setDatabase($database)
+    {
+        $this->database = $database;
+        $this->pdo = null;
+    }
 
+    public function setPDO(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
 
-	public function setPDO(PDO $pdo)
-	{
-		$this->pdo = $pdo;
-	}
+    public function getPDO()
+    {
+        return $this->pdo;
+    }
 
-	public function getPDO()
-	{
-		return $this->pdo;
-	}
+    public function getConnectionString()
+    {
+        return 'mysql:host='.$this->host.';port='.$this->port.';dbname='.$this->database;
+    }
 
-	public function getConnectionString()
-	{
-		return 'mysql:host='.$this->host.';port='.$this->port.';dbname='.$this->database;
-	}
+    public function getUsername()
+    {
+        return $this->user;
+    }
 
-	public function getUsername()
-	{
-		return $this->user;
-	}
-
-	public function getPassword()
-	{
-		return $this->password;
-	}
+    public function getPassword()
+    {
+        return $this->password;
+    }
 }
-

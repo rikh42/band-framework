@@ -6,11 +6,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\events;
 use Symfony\Component\EventDispatcher\Event;
 use snb\http\Response;
-
 
 /**
  * An event that gets sent around before the controller is invoked.
@@ -18,24 +16,22 @@ use snb\http\Response;
  */
 class ResponseEvent extends Event
 {
-	public $response;
+    public $response;
 
+    /**
+     * @param \snb\http\Response $response
+     */
+    public function __construct(Response $response)
+    {
+        $this->response = $response;
+    }
 
-	/**
-	 * @param \snb\http\Response $response
-	 */
-	public function __construct(Response $response)
-	{
-		$this->response = $response;
-	}
-
-
-	/**
-	 * Returns the response
-	 * @return snb\http\Response
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * Returns the response
+     * @return snb\http\Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

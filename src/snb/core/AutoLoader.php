@@ -6,7 +6,6 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
 
 /**
@@ -15,99 +14,91 @@ namespace snb\core;
  */
 class AutoLoader
 {
-	protected $namespaces = array();
-	protected $prefix = array();
+    protected $namespaces = array();
+    protected $prefix = array();
 
+    /**
+     * @param array $namespaces - an array of namespaces
+     */
+    public function registerNamespaces($namespaces)
+    {
+        $this->namespaces = array_merge($this->namespaces, $namespaces);
+    }
 
-	/**
-	 * @param array $namespaces - an array of namespaces
-	 */
-	public function registerNamespaces($namespaces)
-	{
-		$this->namespaces = array_merge($this->namespaces, $namespaces);
-	}
+    /**
+     * registerPrefixes
+     * PEAR Like prefix patterns
+     * @param $prefixes
+     */
+    public function registerPrefixes($prefixes)
+    {
+        $this->prefix = array_merge($this->prefix, $prefixes);
+    }
 
-	/**
-	 * registerPrefixes
-	 * PEAR Like prefix patterns
-	 * @param $prefixes
-	 */
-	public function registerPrefixes($prefixes)
-	{
-		$this->prefix = array_merge($this->prefix, $prefixes);
-	}
+    /**
+     * Gets the list of namespaces
+     * @return array
+     */
+    public function getNamespaces()
+    {
+        return $this->namespaces;
+    }
 
+    /**
+     * Register the autoloader
+     */
+    public function register()
+    {
+        // register the auto load function
+        spl_autoload_register(array($this, 'loadClass'));
+    }
 
-	/**
-	 * Gets the list of namespaces
-	 * @return array
-	 */
-	public function getNamespaces()
-	{
-		return $this->namespaces;
-	}
+    /**
+     * Called when a class needs to be loaded
+     * @param $class - the name of the class
+     */
+    public function loadClass($class)
+    {
+        // remove leading \
+        if ('\\' == $class[0]) {
+            $class = substr($class, 1);
+        }
 
-
-	/**
-	 * Register the autoloader
-	 */
-	public function register()
-	{
-		// register the auto load function
-		spl_autoload_register(array($this, 'loadClass'));
-	}
-
-
-	/**
-	 * Called when a class needs to be loaded
-	 * @param $class - the name of the class
-	 */
-	public function loadClass($class)
-	{
-		// remove leading \
-		if ('\\' == $class[0])
-		{
-			$class = substr($class, 1);
-		}
-
-		// Find the last slash
-		$pos = strrpos($class, '\\');
-		if ($pos !== false)
-		{
-			// Get the namespace
-			$namespace = substr($class, 0, $pos);
-			foreach ($this->namespaces as $name => $path)
-			{
-				// Skip entries in the namespace list that don't start with
-				// this items namespace
-				if (strpos($namespace, $name) !== 0)
-					continue;
-
-				$className = substr($class, $pos + 1);
-				$file = $path."/".str_replace('\\', "/", $namespace)."/".$className.'.php';
-				if (file_exists($file))
-				{
-					require $file;
-					return;
+        // Find the last slash
+        $pos = strrpos($class, '\\');
+        if ($pos !== false) {
+            // Get the namespace
+            $namespace = substr($class, 0, $pos);
+            foreach ($this->namespaces as $name => $path) {
+                // Skip entries in the namespace list that don't start with
+                // this items namespace
+                if (strpos($namespace, $name) !== 0) {
+                    continue;
 				}
-			}
-		}
-		else
-		{
-			// PEAR-like Class_Names_With_Underscore
-			foreach ($this->prefix as $name => $path)
-			{
-				// If this prefix is not a match to the start of the class name, move on
-				if (strpos($class, $name) !== 0)
-					continue;
 
-				$file = $path."/".str_replace('_', "/", $class).'.php';
-				if (file_exists($file))
-				{
-					require $file;
-					return;
+                $className = substr($class, $pos + 1);
+                $file = $path."/".str_replace('\\', "/", $namespace)."/".$className.'.php';
+                if (file_exists($file)) {
+                    require $file;
+
+                    return;
+                }
+            }
+        } else {
+            // PEAR-like Class_Names_With_Underscore
+            foreach ($this->prefix as $name => $path) {
+                // If this prefix is not a match to the start of the class name, move on
+                if (strpos($class, $name) !== 0) {
+                    continue;
 				}
-			}
-		}
-	}
+
+                $file = $path."/".str_replace('_', "/", $class).'.php';
+                if (file_exists($file)) {
+                    require $file;
+
+                    return;
+                }
+            }
+        }
+    }
 }

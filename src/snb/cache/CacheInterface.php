@@ -10,8 +10,8 @@ namespace snb\cache;
 
 interface CacheInterface
 {
-	public function get($key);
-	public function remove($key);
-	public function set($key, $value, $expireSeconds = 60);
-	public function increment( $key, $amount=1);
+    public function get($key);
+    public function remove($key);
+    public function set($key, $value, $expireSeconds = 60);
+    public function increment( $key, $amount=1);
 }

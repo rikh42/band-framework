@@ -6,16 +6,20 @@
  * file that was distributed with this source code.
  */
 
-$start = microtime(true);
-
 // Prepare the autoloader
 require_once __DIR__.'/../app/autoload.php';
 require_once __DIR__ . '/../app/AppKernel.php';
 use snb\http\Request;
 
-// try and find the environment and default to dev
-$env = isset($_SERVER['ENV']) ? $_SERVER['ENV'] : 'dev';
+// Work out the environment. this is set in Apache to dev or live via the rewrite rule.
+// eg. RewriteRule ^(.*)$ app.php [QSA,E=BAND_ENV:dev,L]
+// or directly: SetEnv BAND_ENV dev
+$env = isset($_SERVER['BAND_ENV']) ?
+	$_SERVER['BAND_ENV'] :
+	isset($_SERVER['REDIRECT_BAND_ENV']) ?
+		$_SERVER['REDIRECT_BAND_ENV'] :
+		'dev';
 
 // Create the app kernel and handle the request
-$app = new AppKernel($env, $start);
+$app = new AppKernel($env);
 $app->handle(Request::createFromGlobals())->send();

@@ -6,12 +6,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\view;
-
 
 interface ViewInterface
 {
-	public function render($name, array $data=array());
+    public function render($name, array $data=array());
 }
-

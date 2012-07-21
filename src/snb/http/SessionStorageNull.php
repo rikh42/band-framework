@@ -6,12 +6,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\http;
 
 use snb\http\SessionStorageInterface;
-
-
 
 /**
  * A null session handler - basically, does not start a session, and nothing you try and store
@@ -20,20 +17,20 @@ use snb\http\SessionStorageInterface;
 class SessionStorageNull implements SessionStorageInterface
 {
 
-	public function start()
-	{
-	}
+    public function start()
+    {
+    }
 
-	public function get($key, $default=null)
-	{
-		return $default;
-	}
+    public function get($key, $default=null)
+    {
+        return $default;
+    }
 
-	public function set($key, $value)
-	{
-	}
+    public function set($key, $value)
+    {
+    }
 
-	public function remove($key)
-	{
-	}
+    public function remove($key)
+    {
+    }
 }

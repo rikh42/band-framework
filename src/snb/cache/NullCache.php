@@ -9,9 +9,6 @@
 namespace snb\cache;
 use snb\cache\CacheInterface;
 
-
-
-
 /**
  * NullCache
  * This is a dummy cache class that can be used in debug
@@ -20,40 +17,38 @@ use snb\cache\CacheInterface;
 class NullCache implements CacheInterface
 {
 
-	/**
-	 * @param $key
-	 * @return null
-	 */
-	public function get($key)
-	{
-		return null;
-	}
+    /**
+     * @param $key
+     * @return null
+     */
+    public function get($key)
+    {
+        return null;
+    }
 
+    /**
+     * @param $key
+     */
+    public function remove($key)
+    {
+    }
 
-	/**
-	 * @param $key
-	 */
-	public function remove($key)
-	{
-	}
+    /**
+     * @param $key
+     * @param $value
+     * @param int $expire
+     */
+    public function set($key, $value, $expire=60)
+    {
+    }
 
-	/**
-	 * @param $key
-	 * @param $value
-	 * @param int $expire
-	 */
-	public function set($key, $value, $expire=60)
-	{
-	}
-
-
-	/**
-	 * @param $key
-	 * @param int $amount
-	 * @return int
-	 */
-	public function increment($key, $amount=1)
-	{
-		return 0;
-	}
+    /**
+     * @param $key
+     * @param  int $amount
+     * @return int
+     */
+    public function increment($key, $amount=1)
+    {
+        return 0;
+    }
 }

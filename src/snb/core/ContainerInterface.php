@@ -6,7 +6,6 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
 
 /**
@@ -15,8 +14,8 @@ namespace snb\core;
  */
 interface ContainerInterface
 {
-	function set($name, $object);
-	function setMany($list);
-	function get($name);
-	function getMatching($name);
+    public function set($name, $object);
+    public function setMany($list);
+    public function get($name);
+    public function getMatching($name);
 }

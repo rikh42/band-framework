@@ -8,10 +8,8 @@
 
 namespace snb\form\filters;
 
-
-
 interface FilterInterface
 {
-	function in($value);
-	function out($value);
+    public function in($value);
+    public function out($value);
 }

@@ -5,15 +5,10 @@
  * For the full copyright and license information, please view the LICENSE.txt
  * file that was distributed with this source code.
  */
-/* This file based on part of the Symfony package.
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- */
 
-namespace snb\form;
+namespace snb\exceptions;
 
-interface FormBuilderInterface
+class PageNotFoundException extends \RuntimeException
 {
-    public function addExtensions(array $extensions);
-    public function loadForm($resource);
+
 }

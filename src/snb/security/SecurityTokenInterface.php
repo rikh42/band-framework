@@ -6,64 +6,53 @@
  * with this package in the file LICENSE.txt.
  */
 
-
 namespace snb\security;
-
-
 
 interface SecurityTokenInterface
 {
-	/**
-	 * resets the token to bad values (ie, no you can't log in)
-	 */
-	function reset();
+    /**
+     * resets the token to bad values (ie, no you can't log in)
+     */
+    public function reset();
 
+    /**
+     * Fills the token with fresh values (new series and new token)
+     * and links it to the user specified. The token is stored in the database
+     * @param $userId
+     * @param $expires
+     */
+    public function generateToken($userId, $expires);
 
-	/**
-	 * Fills the token with fresh values (new series and new token)
-	 * and links it to the user specified. The token is stored in the database
-	 * @param $userId
-	 * @param $expires
-	 */
-	function generateToken($userId, $expires);
+    /**
+     * Determines if the token is still active and in the database
+     * ie, it has not expired, and has not been revoked.
+     * @return bool
+     */
+    public function isActive();
 
+    /**
+     * @abstract
+     * Validates the token
+     */
+    public function validate();
 
-	/**
-	 * Determines if the token is still active and in the database
-	 * ie, it has not expired, and has not been revoked.
-	 * @return bool
-	 */
-	function isActive();
+    /**
+     * @abstract
+     *
+     */
+    public function clearAll();
 
-	/**
-	 * @abstract
-	 * Validates the token
-	 */
-	function validate();
+    /**
+     * @abstract
+     * gets the value of the token as a string
+     */
+    public function getTokenString();
 
-
-	/**
-	 * @abstract
-	 *
-	 */
-	function clearAll();
-
-
-	/**
-	 * @abstract
-	 * gets the value of the token as a string
-	 */
-	function getTokenString();
-
-
-	/**
-	 * Sets up the token using the data in the string (typically from a cookie or session
-	 * that got its data from getToken())
-	 * @abstract
-	 * @param $value
-	 */
-	function loadFromValue($value);
+    /**
+     * Sets up the token using the data in the string (typically from a cookie or session
+     * that got its data from getToken())
+     * @abstract
+     * @param $value
+     */
+    public function loadFromValue($value);
 }
-
-
-

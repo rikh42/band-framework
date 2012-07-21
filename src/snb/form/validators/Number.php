@@ -6,53 +6,51 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\form\validators;
-
-use snb\form\validators\ValidatorInterface;
-
 
 /**
  * Validate that the field is Not Blank
  */
 class Number extends AbstractValidator
 {
-	const MsgNotANumber = 'notanumber';
+    const MsgNotANumber = 'notanumber';
 
-	public function __construct($options = null)
-	{
-		parent::__construct($options);
-		$this->setMessage(self::MsgNotANumber, "The value '{{value}}' should be a number.");
-	}
+    public function __construct($options = null)
+    {
+        parent::__construct($options);
+        $this->setMessage(self::MsgNotANumber, "The value '{{value}}' should be a number.");
+    }
 
+    /**
+     * @param $value
+     * @return bool
+     */
+    public function isValid($value)
+    {
+        // clear any old errors
+        $this->clearErrors();
 
-	/**
-	 * @param $value
-	 * @return bool
-	 */
-	public function isValid($value)
-	{
-		// clear any old errors
-		$this->clearErrors();
+        // ints are numbers!
+        if (is_int($value)) {
+            return true;
+        }
 
-		// ints are numbers!
-		if (is_int($value))
-			return true;
+        // so are floats!
+        if (is_float($value)) {
+            return true;
+        }
 
-		// so are floats!
-		if (is_float($value))
-			return true;
+        // strings might be...
+        if (is_string($value)) {
+            // If the string is digits, or digits.digits, then it's a number
+            if (preg_match('/^[-+]?\d+([.,](\d+)?)?$/', $value)) {
+                return true;
+            }
+        }
 
-		// strings might be...
-		if (is_string($value))
-		{
-			// If the string is digits, or digits.digits, then it's a number
-			if (preg_match('/^[-+]?\d+([.,](\d+)?)?$/', $value))
-				return true;
-		}
+        // Something else...
+        $this->addError(self::MsgNotANumber, array('value'=>$value));
 
-		// Something else...
-		$this->addError(self::MsgNotANumber, array('value'=>$value));
-		return false;
-	}
+        return false;
+    }
 }

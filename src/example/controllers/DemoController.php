@@ -9,81 +9,72 @@
 namespace example\controllers;
 use snb\core\Controller;
 use snb\http\Response;
-use snb\view\TwigView;
 use snb\form\FormBuilder;
-
-use snb\security\PasswordHash;
-
-
 
 class DemoController extends Controller
 {
 
-	/**
-	 * Simple action to handle the home page of the site
-	 * @return \snb\http\Response
-	 */
-	public function indexAction()
-	{
-		return $this->renderResponse('example:DemoController:index.twig');
-	}
+    /**
+     * Simple action to handle the home page of the site
+     * @return \snb\http\Response
+     */
+    public function indexAction()
+    {
+        return $this->renderResponse('example:DemoController:index.twig');
+    }
 
+    /**
+     * Draws a simple "hello World" style sample page
+     * @param  string             $name
+     * @return \snb\http\Response
+     */
+    public function helloAction($name)
+    {
+        // Prepare some data that will be rendered in the template
+        $data = array(
+            'name' => $name
+        );
 
-	/**
-	 * Draws a simple "hello World" style sample page
-	 * @param string $name
-	 * @return \snb\http\Response
-	 */
-	public function helloAction($name)
-	{
-		// Prepare some data that will be rendered in the template
-		$data = array(
-			'name' => $name
-		);
+        // render it
+        return $this->renderResponse('example:DemoController:hello.twig', $data);
+    }
 
-		// render it
-		return $this->renderResponse('example:DemoController:hello.twig', $data);
-	}
+    /**
+     * @return \snb\http\Response
+     */
+    public function formAction()
+    {
+        /**
+         * @var \snb\form\type\FormType $form
+         */
 
+        // build the form
+        $formBuilder = $this->getFormBuilder();
+        $form = $formBuilder->loadForm('example:DemoController:example.form.yml');
 
-	/**
-	 * @return \snb\http\Response
-	 */
-	public function formAction()
-	{
-		/**
-		 * @var \snb\form\type\FormType $form
-		 */
+        // Process form submissions
+        if ($form->onPostValid($this->getRequest())) {
+            $mydata = $form->getData();
 
-		// build the form
-		$formBuilder = $this->getFormBuilder();
-		$form = $formBuilder->loadForm('example:DemoController:example.form.yml');
+            // redirect to hello
+            return $this->redirectResponse('hello', array('name'=>'Band'));
+        }
 
-		// Process form submissions
-		if ($form->onPostValid($this->getRequest()))
-		{
-			$mydata = $form->getData();
+        // get the data
+        $data = array('form' => $form->getView());
 
-			// redirect to hello
-			return $this->redirectResponse('hello', array('name'=>'Band'));
-		}
+        // set up the data for the view and render
+        return $this->renderResponse('example:DemoController:form.twig', $data);
+    }
 
-		// get the data
-		$data = array('form' => $form->getView());
+    /**
+     * @return \snb\http\Response
+     */
+    public function Error404Action()
+    {
+        $r = $this->renderResponse('example:DemoController:404.twig');
+        $r->setHTTPResponseCode(404);
 
-		// set up the data for the view and render
-		return $this->renderResponse('example:DemoController:form.twig', $data);
-	}
-
-
-	/**
-	 * @return \snb\http\Response
-	 */
-	public function Error404Action()
-	{
-		$r = $this->renderResponse('example:DemoController:404.twig');
-		$r->setHTTPResponseCode(404);
-		return $r;
-	}
+        return $r;
+    }
 }
-

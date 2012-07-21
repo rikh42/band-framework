@@ -6,11 +6,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
-
 
 interface ContainerAwareInterface
 {
-	function setContainer(ContainerInterface $container = null);
+    public function setContainer(ContainerInterface $container = null);
 }

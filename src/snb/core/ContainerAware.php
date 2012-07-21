@@ -9,20 +9,19 @@
 namespace snb\core;
 use snb\core\ContainerInterface;
 
-
 /**
  * ContainerAware
  * Anything derived from this class
  */
 class ContainerAware implements ContainerAwareInterface
 {
-	/**
-	 * @var snb\core\ContainerInterface
-	 */
-	public $container;
+    /**
+     * @var snb\core\ContainerInterface
+     */
+    public $container;
 
-	function setContainer(ContainerInterface $container = null)
-	{
-		$this->container = $container;
-	}
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
+    }
 }

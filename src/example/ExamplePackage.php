@@ -6,19 +6,17 @@
  * file that was distributed with this source code.
  */
 
-
 namespace example;
 
 use snb\core\ContainerAware;
 use snb\core\PackageInterface;
 use snb\core\KernelInterface;
 
-
 class ExamplePackage extends ContainerAware implements PackageInterface
 {
-	public function boot(KernelInterface $kernel)
-	{
-		//$dispatcher = $this->container->get('event-dispatcher');
-		//$dispatcher->addListener('kernel.request', array($this, 'test'));
-	}
+    public function boot(KernelInterface $kernel)
+    {
+        //$dispatcher = $this->container->get('event-dispatcher');
+        //$dispatcher->addListener('kernel.missingresponse', array($this, 'exceptionHandler'));
+    }
 }

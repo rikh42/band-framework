@@ -6,14 +6,12 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
-
 
 interface ConfigInterface
 {
-	public function get($name, $default = null);
-	public function set($name, $value);
-	public function has($name);
-	public function remove($name);
+    public function get($name, $default = null);
+    public function set($name, $value);
+    public function has($name);
+    public function remove($name);
 }

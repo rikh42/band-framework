@@ -10,11 +10,8 @@
  *
  */
 
-
-
 namespace snb\form\type;
 use snb\form\type\FieldType;
-
 
 class TextType extends FieldType
 {

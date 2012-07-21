@@ -6,13 +6,12 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\form\validators;
 
 interface ValidatorInterface
 {
-	public function isValid($value);
-	public function setMessage($name, $msg);
-	public function getErrors();
-	public function clearErrors();
+    public function isValid($value);
+    public function setMessage($name, $msg);
+    public function getErrors();
+    public function clearErrors();
 }

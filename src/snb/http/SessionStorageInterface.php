@@ -6,14 +6,12 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\http;
-
 
 interface SessionStorageInterface
 {
-	public function start();
-	public function get($key, $default=null);
-	public function set($key, $value);
-	public function remove($key);
+    public function start();
+    public function get($key, $default=null);
+    public function set($key, $value);
+    public function remove($key);
 }

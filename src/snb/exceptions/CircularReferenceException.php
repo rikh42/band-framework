@@ -8,7 +8,6 @@
 
 namespace snb\exceptions;
 
-
 class CircularReferenceException extends \RuntimeException
 {
 

@@ -10,11 +10,8 @@
  *
  */
 
-
-
 namespace snb\form\type;
 use snb\form\type\FieldType;
-
 
 /**
  * Represents a password field in a form
@@ -22,31 +19,30 @@ use snb\form\type\FieldType;
 class PasswordType extends FieldType
 {
 
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return 'password';
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getType()
-	{
-		return 'password';
-	}
+    /**
+     * Builds the FormView for the control. Passwords are special
+     * and the value field is never sent to the view. ie, password
+     * input elements always set value="" in a form
+     * @return \snb\form\FormView
+     */
+    public function getView()
+    {
+        // Do the normal thing
+        $view = parent::getView();
 
+        // then trash the value in the view, as passwords
+        // should not appear in the html
+        $view->set('value', '');
 
-	/**
-	 * Builds the FormView for the control. Passwords are special
-	 * and the value field is never sent to the view. ie, password
-	 * input elements always set value="" in a form
-	 * @return \snb\form\FormView
-	 */
-	public function getView()
-	{
-		// Do the normal thing
-		$view = parent::getView();
-
-		// then trash the value in the view, as passwords
-		// should not appear in the html
-		$view->set('value', '');
-		return $view;
-	}
+        return $view;
+    }
 
 }

@@ -6,12 +6,9 @@
  * file that was distributed with this source code.
  */
 
-
-
 namespace snb\core;
 use snb\core\DatabaseInterface;
 use snb\logger\LoggerInterface;
-
 
 /**
  * How would this work?
@@ -37,35 +34,30 @@ use snb\logger\LoggerInterface;
  *
  */
 
-
 /**
  * Base class of a single migration from one version of the database to another
  */
 class DbMigration
 {
-	protected $db;
-	protected $logger;
+    protected $db;
+    protected $logger;
 
+    public function __construct(DatabaseInterface $db, LoggerInterface $logger)
+    {
+        $this->db = $db;
+        $this->logger = $logger;
+    }
 
-	public function __construct(DatabaseInterface $db, LoggerInterface $logger)
-	{
-		$this->db = $db;
-		$this->logger = $logger;
-	}
+    public function up()
+    {
+    }
 
+    public function down()
+    {
+    }
 
-	public function up()
-	{
-	}
-
-
-	public function down()
-	{
-	}
-
-
-	/*
-	 * public function useTransaction();
-	 */
+    /*
+     * public function useTransaction();
+     */
 
 }

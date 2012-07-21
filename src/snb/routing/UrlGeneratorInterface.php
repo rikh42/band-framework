@@ -8,11 +8,10 @@
 
 namespace snb\routing;
 
-
 /**
  * Defines the interface used to generate a url from a named route
  */
 interface UrlGeneratorInterface
 {
-	function generate($name, $arguments=array(), $fullyQualified=false);
+    public function generate($name, $arguments=array(), $fullyQualified=false);
 }

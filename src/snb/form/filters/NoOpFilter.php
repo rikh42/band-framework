@@ -14,13 +14,13 @@ use snb\form\filters\FilterInterface;
  */
 class NoOpFilter implements FilterInterface
 {
-	function in($value)
-	{
-		return $value;
-	}
+    public function in($value)
+    {
+        return $value;
+    }
 
-	function out($value)
-	{
-		return $value;
-	}
+    public function out($value)
+    {
+        return $value;
+    }
 }

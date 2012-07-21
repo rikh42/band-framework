@@ -6,12 +6,10 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
 use snb\core\KernelInterface;
 
-
 interface PackageInterface
 {
-	public function boot(KernelInterface $kernel);
+    public function boot(KernelInterface $kernel);
 }

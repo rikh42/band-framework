@@ -6,28 +6,23 @@
  * file that was distributed with this source code.
  */
 
-
 namespace snb\core;
-
 
 /**
  * The interface used to talk to databases
  */
 interface DatabaseInterface
 {
-	function init();
-	function addConnection($name);
-	function setActiveConnection($name);
-	function isOpenConnection();
+    public function init();
+    public function addConnection($name);
+    public function setActiveConnection($name);
+    public function isOpenConnection();
 
+    public function all($query, $params = null);
+    public function row($query, $params = null);
+    public function one($query, $params = null);
+    public function query($query, $params = null);
 
-	function all($query, $params = null);
-	function row($query, $params = null);
-	function one($query, $params = null);
-	function query($query, $params = null);
-
-
-	function getLastInsertID();
-	function getLastInsertIDString();
+    public function getLastInsertID();
+    public function getLastInsertIDString();
 }
-
