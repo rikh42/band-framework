@@ -18,6 +18,14 @@ class NullCache implements CacheInterface
 {
 
     /**
+     * Needed to allow the service to generate the class
+     */
+    public function __construct()
+    {
+
+    }
+
+    /**
      * @param $key
      * @return null
      */
@@ -50,5 +58,14 @@ class NullCache implements CacheInterface
     public function increment($key, $amount=1)
     {
         return 0;
+    }
+
+
+    /**
+     * Flush the cache...
+     */
+    public function flush()
+    {
+
     }
 }

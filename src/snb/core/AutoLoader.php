@@ -53,11 +53,31 @@ class AutoLoader
         spl_autoload_register(array($this, 'loadClass'));
     }
 
+
+
     /**
      * Called when a class needs to be loaded
      * @param $class - the name of the class
      */
     public function loadClass($class)
+    {
+        // Go find the path for the class
+        $filePath = $this->getFilePath($class);
+
+        // store it in the cache
+        if ($filePath !== false) {
+            // include it
+            require $filePath;
+        }
+    }
+
+
+
+    /**
+     * @param $class
+     * @return bool|string
+     */
+    protected function getFilePath($class)
     {
         // remove leading \
         if ('\\' == $class[0]) {
@@ -76,12 +96,13 @@ class AutoLoader
                     continue;
 				}
 
+                // Build the file name that the class should be in
                 $className = substr($class, $pos + 1);
                 $file = $path."/".str_replace('\\', "/", $namespace)."/".$className.'.php';
-                if (file_exists($file)) {
-                    require $file;
 
-                    return;
+                // Hopefully, found it
+                if (file_exists($file)) {
+                    return $file;
                 }
             }
         } else {
@@ -92,13 +113,16 @@ class AutoLoader
                     continue;
 				}
 
+                // Build the path where we can find the class
                 $file = $path."/".str_replace('_', "/", $class).'.php';
-                if (file_exists($file)) {
-                    require $file;
 
-                    return;
+                // Hopefully, found it
+                if (file_exists($file)) {
+                    return $file;
                 }
             }
         }
+
+        return false;
     }
 }

@@ -22,17 +22,16 @@ class TwigView extends ContainerAware implements ViewInterface
     {
     }
 
+
     /**
-     * Renders a template
-     * @param  string $name - name of the template file
-     * @param  array  $data - data to be passed to the template engine
-     * @return string
+     * Sets up Twig ready for use and returns it
+     * @return \Twig_Environment
      */
-    public function render($name, array $data=array())
+    protected function getTwigEnvironment()
     {
         /**
          * Get the config
-         * @var snb\core\ConfigInterface $config
+         * @var \snb\config\ConfigInterface $config
          */
         $config = $this->container->get('config');
         $kernel = $this->container->get('kernel');
@@ -46,7 +45,7 @@ class TwigView extends ContainerAware implements ViewInterface
         // use the default environment. Should pass settings over from the config
         $twig = new \Twig_Environment($loader,array(
             'cache' => $kernel->findPath($cachePath),
-            'auto_reload' => true
+            'debug' => $kernel->isDebug()
         ));
 
         // Add all the extensions that have been registed with the service provider
@@ -55,9 +54,36 @@ class TwigView extends ContainerAware implements ViewInterface
             $twig->addExtension($ext);
         }
 
+        return $twig;
+    }
+
+    /**
+     * Renders a template
+     * @param  string $name - name of the template file
+     * @param  array  $data - data to be passed to the template engine
+     * @return string
+     */
+    public function render($name, array $data=array())
+    {
+        // set up twig
+        $twig = $this->getTwigEnvironment();
+
         // Load the template and render it.
         $template = $twig->loadTemplate($name);
-
         return $template->render($data);
+    }
+
+
+
+    /**
+     * Remove all the cached Twig templates
+     */
+    public function clearCachedFiles()
+    {
+        // set up twig
+        $twig = $this->getTwigEnvironment();
+
+        // Clear all the cached files
+        $twig->clearCacheFiles();
     }
 }

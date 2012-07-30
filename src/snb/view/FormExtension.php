@@ -13,7 +13,7 @@
 namespace snb\view;
 
 use snb\form\FormView;
-use snb\core\ConfigInterface;
+use snb\config\ConfigInterface;
 
 /**
  * A Twig extension that adds functions to support forms
@@ -24,7 +24,7 @@ class FormExtension extends \Twig_Extension
     protected $config;
 
     /**
-     * @param \snb\core\ConfigInterface $config
+     * @param \snb\config\ConfigInterface $config
      */
     public function __construct(ConfigInterface $config)
     {

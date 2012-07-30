@@ -6,11 +6,12 @@
  * file that was distributed with this source code.
  */
 
-namespace snb\core;
+namespace snb\config;
 
-use snb\core\ConfigInterface;
+use snb\config\ConfigInterface;
 use snb\core\KernelInterface;
 use snb\exceptions\CircularReferenceException;
+use snb\config\ConfigStoreCompiler;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -21,14 +22,16 @@ class ConfigSettings implements ConfigInterface
 {
     protected $all;
     protected $loading;
+    protected $kernel;
 
     /**
      * sets up the config store.
      */
-    public function __construct()
+    public function __construct(KernelInterface $kernel)
     {
         $this->all = array();
         $this->loading = array();
+        $this->kernel = $kernel;
     }
 
     /**
@@ -83,21 +86,34 @@ class ConfigSettings implements ConfigInterface
 
     /**
      * Loads in a yaml config file, flattens it and stores the results
-     * @param  string                                     $file   - the name of the file to load
-     * @param  KernelInterface                            $kernel
+     * @param  string $resource - the name of the file resource to load
+     */
+    public function load($resource)
+    {
+        // Load the resource and set up the config
+        $this->loadResource($resource);
+    }
+
+
+
+
+    /**
+     * @param $resource
      * @throws \snb\exceptions\CircularReferenceException
      */
-    public function load($file, KernelInterface $kernel)
+    protected function loadResource($resource)
     {
-        if (isset($this->loading[$file])) {
+        // Check that we aren't in a circular loading loop
+        // (ie, we load config.yml and it wants to import config.yml)
+        if (isset($this->loading[$resource])) {
             throw new CircularReferenceException();
-		}
+        }
 
         // we are now loading this file, so protect against loading it twice
-        $this->loading[$file] = true;
+        $this->loading[$resource] = true;
 
         // try and find the file
-        $configPath = $kernel->findResource($file, 'config');
+        $configPath = $this->kernel->findResource($resource, 'config');
 
         // Read in the content (file or string)
         $content = Yaml::parse($configPath);
@@ -105,12 +121,12 @@ class ConfigSettings implements ConfigInterface
         // bad data turns into an empty result
         if ($content == null) {
             $content = array();
-		}
+        }
 
         // must be an array, so trash anything else
         if (!is_array($content)) {
             $content = array();
-		}
+        }
 
         // Flatten the content down
         $flat = array();
@@ -119,15 +135,18 @@ class ConfigSettings implements ConfigInterface
         // See if the file includes an import command
         if (array_key_exists('import', $flat)) {
             // Yes, so load that first
-            $this->load($flat['import'], $kernel);
+            $this->loadResource($flat['import']);
         }
 
         // replace any items already set in the config, with the items from this file
         $this->all = array_replace($this->all, $flat);
 
         // no longer loading this file
-        unset($this->loading[$file]);
+        unset($this->loading[$resource]);
     }
+
+
+
 
     /**
      * flatten
@@ -151,6 +170,15 @@ class ConfigSettings implements ConfigInterface
                 $flat[$newpath] = $value;
 			}
         }
+    }
+
+
+    /**
+     * Clear the cache - we don't store anything in a cache, so this does nothing
+     */
+    public function clearCache()
+    {
+
     }
 
 }

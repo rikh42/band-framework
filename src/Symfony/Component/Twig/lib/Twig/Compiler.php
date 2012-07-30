@@ -119,6 +119,11 @@ class Twig_Compiler implements Twig_CompilerInterface
         return $this;
     }
 
+    /**
+     * Appends an indentation to the current PHP code after compilation.
+     *
+     * @return Twig_Compiler The current compiler instance
+     */
     public function addIndentation()
     {
         $this->source .= str_repeat(' ', $this->indentation * 4);
@@ -239,11 +244,12 @@ class Twig_Compiler implements Twig_CompilerInterface
      */
     public function outdent($step = 1)
     {
-        $this->indentation -= $step;
-
-        if ($this->indentation < 0) {
+        // can't outdent by more steps that the current indentation level
+        if ($this->indentation < $step) {
             throw new Twig_Error('Unable to call outdent() as the indentation would become negative');
         }
+
+        $this->indentation -= $step;
 
         return $this;
     }

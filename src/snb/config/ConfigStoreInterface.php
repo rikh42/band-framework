@@ -6,12 +6,14 @@
  * file that was distributed with this source code.
  */
 
-namespace snb\core;
+namespace snb\config;
 
-interface ConfigInterface
+interface ConfigStoreInterface
 {
-    public function get($name, $default = null);
-    public function set($name, $value);
-    public function has($name);
-    public function remove($name);
+    /**
+     * @abstract
+     * @return array
+     * Returns an array of settings and their values
+     */
+    public function getSettings();
 }

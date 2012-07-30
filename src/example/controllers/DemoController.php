@@ -30,13 +30,9 @@ class DemoController extends Controller
      */
     public function helloAction($name)
     {
-        // Prepare some data that will be rendered in the template
-        $data = array(
-            'name' => $name
-        );
-
-        // render it
-        return $this->renderResponse('example:DemoController:hello.twig', $data);
+        // render the page using a twig template
+        return $this->renderResponse('example:DemoController:hello.twig',
+            array('name' => $name));
     }
 
     /**
@@ -55,6 +51,7 @@ class DemoController extends Controller
         // Process form submissions
         if ($form->onPostValid($this->getRequest())) {
             $mydata = $form->getData();
+            // Save data from the form here...
 
             // redirect to hello
             return $this->redirectResponse('hello', array('name'=>'Band'));

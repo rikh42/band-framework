@@ -74,10 +74,13 @@ class ServiceDefinition extends ContainerAware
      * The argument list has the same options as setArguments
      * @param string $func - the name of the function to call
      * @param array  $args - the list of arguments passed to the function
+     * @return ServiceDefinition
      */
     public function addCall($func, array $args=array())
     {
         $this->calls[$func] = $args;
+
+        return $this;
     }
 
 

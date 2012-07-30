@@ -25,13 +25,9 @@ hello:
 <pre class="prettyprint">
 public function helloAction($name)
 {
-	// Prepare some data that will be rendered in the template
-	$data = array(
-		'name' => $name
-	);
-
-	// render it
-	return $this->renderResponse('example:DemoController:hello.twig', $data);
+	// render the page using a twig template
+	return $this->renderResponse('example:DemoController:hello.twig',
+		array('name' => $name));
 }
 </pre>
 

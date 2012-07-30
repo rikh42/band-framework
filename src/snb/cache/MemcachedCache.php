@@ -108,4 +108,20 @@ class MemcachedCache extends ContainerAware implements CacheInterface
 
         return $count;
     }
+
+
+    /**
+     * Flushes all items stored in the cache
+     * @return mixed
+     */
+    public function flush()
+    {
+        // If we don't have memCached, then fail
+        if (!$this->memCached) {
+            return;
+        }
+
+        // Flush the cache
+        $this->memCached->flush();
+    }
 }

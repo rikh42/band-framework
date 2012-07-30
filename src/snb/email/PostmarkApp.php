@@ -7,9 +7,8 @@
  */
 
 namespace snb\email;
-use snb\core\ConfigInterface;
+use snb\config\ConfigInterface;
 use snb\email\EmailAbstract;
-use snb\core\ConfigInterface;
 use snb\logger\LoggerInterface;
 
 /**
@@ -21,7 +20,7 @@ class PostmarkApp extends EmailAbstract
     protected $logger;
 
     /**
-     * @param \snb\core\ConfigInterface   $config
+     * @param \snb\config\ConfigInterface   $config
      * @param \snb\logger\LoggerInterface $logger
      */
     public function __construct(ConfigInterface $config, LoggerInterface $logger)

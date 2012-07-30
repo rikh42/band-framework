@@ -6,13 +6,13 @@
  * file that was distributed with this source code.
  */
 
-namespace snb\cache;
+namespace snb\config;
 
-interface CacheInterface
+interface ConfigInterface
 {
-    public function get($key);
-    public function remove($key);
-    public function set($key, $value, $expireSeconds = 60);
-    public function increment( $key, $amount=1);
-    public function flush();
+    public function get($name, $default = null);
+    public function set($name, $value);
+    public function has($name);
+    public function remove($name);
+    public function clearCache();
 }

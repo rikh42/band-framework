@@ -14,11 +14,14 @@ use snb\http\Request;
 // Work out the environment. this is set in Apache to dev or live via the rewrite rule.
 // eg. RewriteRule ^(.*)$ app.php [QSA,E=BAND_ENV:dev,L]
 // or directly: SetEnv BAND_ENV dev
-$env = isset($_SERVER['BAND_ENV']) ?
-	$_SERVER['BAND_ENV'] :
-	isset($_SERVER['REDIRECT_BAND_ENV']) ?
-		$_SERVER['REDIRECT_BAND_ENV'] :
-		'dev';
+$env = 'dev';
+if (isset($_SERVER['BAND_ENV'])) {
+    $env = $_SERVER['BAND_ENV'];
+} else {
+    if (isset($_SERVER['REDIRECT_BAND_ENV'])) {
+        $env = $_SERVER['REDIRECT_BAND_ENV'];
+    }
+}
 
 // Create the app kernel and handle the request
 $app = new AppKernel($env);

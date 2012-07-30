@@ -133,20 +133,28 @@ class FormBuilder extends ContainerAware implements FormBuilderInterface
      */
     public function loadForm($resource)
     {
-        // Convert the resource name into a filename
-        $filename = $this->container->get('kernel')->findResource($resource, 'forms');
+        $cache = $this->container->get('cache');
+        $cacheKey = 'FormBuilder::'.$resource;
+        $content = $cache->get($cacheKey);
+        if ($content === null) {
+            // Convert the resource name into a filename
+            $filename = $this->container->get('kernel')->findResource($resource, 'forms');
 
-        // Read in the content (file or string)
-        $content = Yaml::parse($filename);
+            // Read in the content (file or string)
+            $content = Yaml::parse($filename);
 
-        // bad data turns into an empty result
-        if ($content==null) {
-            $content = array();
-        }
+            // bad data turns into an empty result
+            if ($content==null) {
+                $content = array();
+            }
 
-        // must be an array, so trash anything else
-        if (!is_array($content)) {
-            $content = array();
+            // must be an array, so trash anything else
+            if (!is_array($content)) {
+                $content = array();
+            }
+
+            // Store the form in the cache
+            $cache->set($cacheKey, $content, 60*60*4);
         }
 
         // make the form from the array

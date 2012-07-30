@@ -98,15 +98,47 @@ class RouteCollection extends ContainerAware implements UrlGeneratorInterface
     // Loads all the routes in the named file and replaces any existing routes with them.
     // The file is expected to be in simple json format
     //==============================
-    public function load($filename)
+    public function load()
     {
         // reset the current route list
         $this->routes = array();
 
+        // find the routes resource
+        $config = $this->container->get('config');
+        $routesResource = $config->get('snb.routes', '::routes.yml');
+        $cacheKey = 'RouteCollection::'.$routesResource;
+
+        // Try and load the routes from the cache
+        $cache =  $this->container->get('cache');
+        $routes = $cache->get($cacheKey);
+        if ($routes == null) {
+            // Load the routes from the resource and cache it
+            $routes = $this->loadFromResource($routesResource);
+            $cache->set($cacheKey, $routes, 3600);
+        }
+
+        // Update the route table
+        $this->routes = $routes;
+    }
+
+
+    /**
+     * @param $resourceName
+     * @return array
+     */
+    public function loadFromResource($resourceName)
+    {
+        // Was not in the cache, so load it from disk and write it to the cache
+        $routes = array();
+
+        // Find the name of the routes file
+        $kernel = $this->container->get('kernel');
+        $filename = $kernel->findResource($resourceName, 'config');
+
         // Load in the routes
         $content = Yaml::parse($filename);
         if (($content == null) || (!is_array($content))) {
-            return;
+            return $routes;
         }
 
         // try and set up the routes from this content
@@ -128,7 +160,9 @@ class RouteCollection extends ContainerAware implements UrlGeneratorInterface
 
             // create the route
             $route = new Route($name, $item['url'], $options, $placeholders, $defaults);
-            $this->routes[$name] = $route;
+            $routes[$name] = $route;
         }
+
+        return $routes;
     }
 }

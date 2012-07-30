@@ -15,6 +15,8 @@ interface KernelInterface
     public function getPackagePath($name);
     public function findResource($name, $type);
     public function handle(Request $request);
+    public function getEnvironment();
+    public function isDebug();
 
     /**
      * @param string $name - the name of the service to add

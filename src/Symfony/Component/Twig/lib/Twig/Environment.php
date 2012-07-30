@@ -17,7 +17,7 @@
  */
 class Twig_Environment
 {
-    const VERSION = '1.8.2';
+    const VERSION = '1.9.1';
 
     protected $charset;
     protected $loader;
@@ -1094,7 +1094,7 @@ class Twig_Environment
         if (false !== @file_put_contents($tmpFile, $content)) {
             // rename does not work on Win32 before 5.2.6
             if (@rename($tmpFile, $file) || (@copy($tmpFile, $file) && unlink($tmpFile))) {
-                @chmod($file, 0644);
+                @chmod($file, 0666 & ~umask());
 
                 return;
             }

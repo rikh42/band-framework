@@ -144,13 +144,9 @@ class Kernel extends ContainerAware implements KernelInterface
      */
     protected function initServices()
     {
-        // load the config and add it as a service
-        $config = new ConfigSettings();
-        $config->load($this->getConfigName(), $this);
-
         // Add some services that are part of the system
-        $this->addService('config', $config);
         $this->addService('kernel', $this);
+        $this->addService('config', 'snb\config\ConfigSettings')->setArguments(array('::service::kernel'))->addCall('load', array($this->getConfigName()));
         $this->addService('routes', 'snb\routing\RouteCollection');
         $this->addService('event-dispatcher', new EventDispatcher);
         $this->addService('logger', $this->logger);
@@ -172,6 +168,8 @@ class Kernel extends ContainerAware implements KernelInterface
         $this->registerServices();
     }
 
+
+
     /**
      * getConfigName
      * Gets the default name of the config file to load.
@@ -182,6 +180,28 @@ class Kernel extends ContainerAware implements KernelInterface
     {
         return '::config-'.$this->environment.'.yml';
     }
+
+
+    /**
+     * gets the current environment (dev, prod, test, etc)
+     * @return string
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
+    }
+
+
+    /**
+     * Indicate if we are in development mode
+     * @return bool
+     */
+    public function isDebug()
+    {
+        return ($this->getEnvironment()=='dev');
+    }
+
+
 
     /**
      * registerServices
@@ -396,10 +416,7 @@ class Kernel extends ContainerAware implements KernelInterface
 
             // load routes and find the route
             $routes = $this->container->get('routes');
-            $routesPath = $this->findResource(
-                $config->get('snb.routes', '::routes.yml'),
-                'config');
-            $routes->load($routesPath);
+            $routes->load();
 
             // Try and find a route that matches the request
             $route = $routes->findMatchingRoute($request);

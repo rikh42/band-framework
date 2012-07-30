@@ -11,4 +11,5 @@ namespace snb\view;
 interface ViewInterface
 {
     public function render($name, array $data=array());
+    public function clearCachedFiles();
 }
