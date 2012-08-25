@@ -1,3 +1,6 @@
 [submodule "src/example"]
 	path = src/example
 	url = git@github.com:rikh42/band-example.git
+[submodule "src/snb"]
+	path = src/snb
+	url = git@github.com:rikh42/band-snb.git
