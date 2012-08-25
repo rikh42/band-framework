@@ -1,7 +1,18 @@
 snb:
   cache:
     host: localhost
+    port: 11211
     prefix: 'app::'
   routes: ::routes.yml
   forms:
     layout: ::forms.layout.twig
+  csrf:
+    secret: a secret that is unique to your app and not public
+
+database:
+  read:
+    host: localhost
+    port: 3306
+    user: root
+    password: 4242
+    database: band

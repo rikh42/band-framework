@@ -1,5 +1,6 @@
 ## Routes
 
+## Examples Routes
 home:
   url: /
   options: { controller: example:DemoController:index }
@@ -8,3 +9,11 @@ hello:
   url: /hello/::{name}
   options: { controller: example:DemoController:hello }
   defaults: { name: 'World' }
+
+form:
+  url: /form
+  options: { controller: example:DemoController:form }
+
+404:
+  url: /404
+  options: { controller: example:DemoController:Error404 }

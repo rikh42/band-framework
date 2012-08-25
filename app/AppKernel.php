@@ -22,7 +22,7 @@ class AppKernel extends Kernel
 	{
 		return array(
 			'app' 		=> __DIR__,
-			'framework' => __DIR__.'/../src/snb',
+			'snb' 		=> __DIR__.'/../src/snb',
 			'example' 	=> __DIR__.'/../src/example'
 		);
 	}
@@ -34,8 +34,7 @@ class AppKernel extends Kernel
 	 */
 	protected function getBootable()
 	{
-		return array(
-		);
+		return array(new \example\ExamplePackage());
 	}
 
 
@@ -46,16 +45,16 @@ class AppKernel extends Kernel
 	 */
 	protected function registerServices()
 	{
-		// use memcached for caching
-		$this->addService('cache', 'snb\cache\NullCache');
-		//$this->addService('cache', 'snb\cache\MemcachedCache')
-		//		->setArguments(array('::config::snb.cache.host', '::config::snb.cache.port', '::config::snb.cache.prefix'));
+        /*
+        $this->addService('cache', 'snb\cache\MemcachedCache')->setArguments(array(
+            '::config::snb.cache.host',
+            '::config::snb.cache.port',
+            '::config::snb.cache.prefix'
+        ));
 
-		// add the routes collection
-		$this->addService('routes', 'snb\routing\RouteCollection');
-
-		// add a session handler (auto start it)
-		$this->addService('session', 'snb\http\SessionStorage')
-				->addCall('start');
+        $this->addService('config', 'snb\config\CachedConfigSettings')
+            ->setArguments(array('::service::kernel'))
+            ->addCall('load', array($this->getConfigName()));
+        */
 	}
 }

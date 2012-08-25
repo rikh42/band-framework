@@ -14,65 +14,77 @@ So, this file essentially defines the markup used to render forms
 
 {# Draws the errors on a field #}
 {% block field_errors%}
-	{% if errors %}
-		<ul>
-		{% for e in errors %}
-			<li>{{e}}</li>
-		{% endfor %}
-		</ul>
-	{% endif %}
+{% if errors %}<span class="help-inline">{% for e in errors %}{{e}}<br />{% endfor %}</span>{% endif %}
+{% endblock %}
+
+
+{# render attributes for a field #}
+{% block field_attributes %}
+{% if readonly %}readonly="readonly" {%endif%}
+{% if attributes %}{% for n,v in attributes %}{{n}}="{{v}}" {%endfor%}{%endif%}
+{% endblock %}
+
+
+{# render Anything we want to appear just after the widget #}
+{% block field_extra %}
+{% if hint %}<p class="help-block">{{hint}}</p>{% endif %}
 {% endblock %}
 
 
 {# Draws the html widget of a field #}
 {% block field_widget %}
-	<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('text')}}" name="{{full_name}}" value="{{value}}" />
-	{% if hint %}
-		<p class="help-block">{{hint}}</p>
-	{% endif %}
+<input type="{{type|default('text')}}" id="{{id}}" name="{{full_name}}" value="{{value}}" {% if class %}class="{{class}}"{%endif%} {{block('field_attributes')}} />
+{{block('field_extra')}}
 {% endblock %}
 
 {% block textarea_widget %}
-	<textarea id="{{id}}" name="{{full_name}}" class="input-xlarge {{class}}" rows="{{rows|default(3)}}">{{value}}</textarea>
+<textarea id="{{id}}" name="{{full_name}}" {% if class %}class="{{class}}"{%endif%} rows="{{rows|default(5)}}" {{block('field_attributes')}}>{{value}}</textarea>
+{{block('field_extra')}}
 {% endblock %}
 
 {% block checkbox_widget %}
-	<label class="checkbox">
-		<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('checkbox')}}" name="{{full_name}}" {%if attributes.checked %}checked="checked"{%endif%} value="{{value}}" />
-		{{label|default(name)}}
-	</label>
+<label class="checkbox"><input type="{{type|default('checkbox')}}" id="{{id}}" name="{{full_name}}" value="{{value}}" {%if class%}class="{{class}}" {%endif%} {%if attributes.checked %}checked="checked"{%endif%} {{block('field_attributes')}}/>{{label|default(name)}}</label>
+{{block('field_extra')}}
 {% endblock %}
 
 {% block radio_widget %}
-	<label class="radio">
-		<input class="input-xlarge {{class}}" id="{{id}}" type="{{type|default('radio')}}" name="{{full_name}}" {%if attributes.checked %}checked="checked"{%endif%} value="{{value}}" />
-		{{label|default(name)}}
-	</label>
+<label class="radio"><input type="{{type|default('radio')}}" id="{{id}}" name="{{full_name}}" value="{{value}}" {% if class %}class="{{class}}"{%endif%} {%if attributes.checked %}checked="checked"{%endif%} {{block('field_attributes')}} />{{label|default(name)}}</label>
+{{block('field_extra')}}
 {% endblock %}
 
 {% block choice_widget %}
+{%spaceless%}
 	{% if expanded %}
 		{% for child in form %}
 			{{ form_widget(child) }}
 		{% endfor %}
 	{%else%}
-		<select id="{{id}}" name="{{full_name}}" class="{{class}}" {% if multiselect %}multiple="multiple"{%endif%}>
+		<select id="{{id}}" name="{{full_name}}" {% if class %}class="{{class}}"{%endif%} {% if multiselect %}multiple="multiple"{%endif%} {{block('field_attributes')}}>
 			{% for optionVal, optionLabel in choices %}
-			<option value="{{optionVal}}" {%if optionVal==value%}selected="selected"{%endif%}>{{optionLabel}}</option>
+			<option value="{{optionVal}}" {%if isChoiceSelected(optionVal, value)%}selected="selected"{%else%}{% if readonly %}disabled="disabled"{%endif%}{%endif%}>{{optionLabel}}</option>
 			{% endfor %}
 		</select>
 	{% endif %}
+	{{block('field_extra')}}
+{%endspaceless%}
 {% endblock %}
+
+{% block hidden_widget %}
+<input id="{{id}}" type="hidden" name="{{full_name}}" value="{{value}}" {{block('field_attributes')}}/>
+{% endblock %}
+
 
 {# Draws all the parts of a field (label, errors, widgets) #}
 {% block field_row %}
-<div class="control-group">
+{%spaceless%}
+<div class="control-group{% if errors %} error{%endif%}">
 	{{ form_label(form) }}
 	<div class="controls">
-	{{ form_errors(form) }}
 	{{ form_widget(form) }}
+	{{ form_errors(form) }}
 	</div>
 </div>
+{%endspaceless%}
 {% endblock  %}
 
 {% block checkbox_row %}
@@ -93,11 +105,25 @@ So, this file essentially defines the markup used to render forms
 </div>
 {% endblock  %}
 
+{% block hidden_row %}
+{{ form_widget(form) }}
+{% endblock  %}
+
+
 
 {# Draws a sub-form #}
 {% block form_row %}
+{%spaceless%}
 	{% if label %}
 	<fieldset><legend>{{label}}</legend>
+		{% if errors %}
+		<div class="control-group error">
+			<label class="control-label" ></label>
+			<div class="controls">
+				{{ form_errors(form) }}
+			</div>
+		</div>
+		{% endif %}
 	{% endif %}
 	{% for child in form %}
 		{{ form_row(child) }}
@@ -105,13 +131,16 @@ So, this file essentially defines the markup used to render forms
 	{% if label %}
 	</fieldset>
 	{% endif %}
+{%endspaceless%}
 {% endblock form_row %}
 
 
 {# Draws all the rows in a form #}
 {% block field_rows %}
+{%spaceless%}
 	{% for child in form %}
 		{{ form_row(child) }}
 	{% endfor %}
+{%endspaceless%}
 {% endblock %}
 
