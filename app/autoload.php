@@ -6,17 +6,24 @@
  * with this package in the file LICENSE.txt.
  */
 
+require_once __DIR__ . '/../src/snb/core/AutoLoaderContainer.php';
+require_once __DIR__ . '/../src/snb/core/AutoLoaderInterface.php';
 require_once __DIR__ . '/../src/snb/core/AutoLoader.php';
+use snb\core\AutoLoadContainer;
 use snb\core\AutoLoader;
 
-// Set up the autoloader
-$loader = new AutoLoader();
-$loader->registerNamespaces(array(
-	'snb' => __DIR__.'/../src',
-	'Symfony' => __DIR__.'/../src',
-	'example' => __DIR__.'/../src'
+// Create a suitable Auto Loader and register it with PHP
+AutoLoadContainer::register(new AutoLoader());
+
+// Add the PSR-0 namespaces to the AutoLoader
+AutoLoadContainer::addNamespaces(array(
+    'snb' => __DIR__.'/../src',
+    'Symfony' => __DIR__.'/../src',
+    'example' => __DIR__.'/../src'
 ));
-$loader->registerPrefixes(array(
-	'Twig_'            => __DIR__.'/../src/Symfony/Component/Twig/lib'
+
+// Add the PSR-0 Prefix class to the AutoLoader
+AutoLoadContainer::addPrefixes(array(
+    'Twig_'            => __DIR__.'/../src/Symfony/Component/Twig/lib'
 ));
-$loader->register();
+
